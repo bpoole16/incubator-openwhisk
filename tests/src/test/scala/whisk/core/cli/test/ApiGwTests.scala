@@ -129,10 +129,11 @@ class ApiGwTests
         limit: Option[Int] = None,
         since: Option[Instant] = None,
         full: Option[Boolean] = None,
+        sortAction: Option[Boolean] = None,
         expectedExitCode: Int = SUCCESS_EXIT): RunResult = {
 
         checkThrottle()
-        wsk.apiexperimental.list(basepathOrApiName, relpath, operation, limit, since, full, expectedExitCode)
+        wsk.apiexperimental.list(basepathOrApiName, relpath, operation, limit, since, full, sortAction, expectedExitCode)
     }
 
     def apiGetExperimental(
@@ -176,11 +177,12 @@ class ApiGwTests
         limit: Option[Int] = None,
         since: Option[Instant] = None,
         full: Option[Boolean] = None,
+        sortAction: Option[Boolean] = None,
         expectedExitCode: Int = SUCCESS_EXIT,
         cliCfgFile: Option[String] = Some(cliWskPropsFile.getCanonicalPath())): RunResult = {
 
         checkThrottle()
-        wsk.api.list(basepathOrApiName, relpath, operation, limit, since, full, expectedExitCode, cliCfgFile)
+        wsk.api.list(basepathOrApiName, relpath, operation, limit, since, full, sortAction, expectedExitCode, cliCfgFile)
     }
 
     def apiGet(

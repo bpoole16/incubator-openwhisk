@@ -74,6 +74,138 @@ class ApiGwEndToEndTests
 
     behavior of "Wsk api-experimental"
 
+    it should "return a list of alphabetized api-experimental" in withAssetCleaner(wskprops) {
+    (wp, assetHelper) =>
+
+        val actionName1 = "actionName1"
+        val actionName2 = "actionName2"
+        val actionName3 = "actionName3"
+        val base1 = "/BaseTestPath1"
+        val base2 = "/BaseTestPath2"
+        val base3 = "/BaseTestPath3"
+
+        try {
+            //Create Actions for apiexperimentals
+            val file = TestUtils.getTestActionFilename(s"echo-web-http.js")
+            println("Create Action: " + actionName1)
+            assetHelper.withCleaner(wsk.action, actionName1) {
+                (action, name) => action.create(name, artifact = Some(file), expectedExitCode = SUCCESS_EXIT, web = Some("true"))
+            }
+            println("Create Action: " + actionName2)
+            assetHelper.withCleaner(wsk.action, actionName2) {
+                (action, name) => action.create(name, artifact = Some(file), expectedExitCode = SUCCESS_EXIT, web = Some("true"))
+            }
+            println("Create Action: " + actionName3)
+            assetHelper.withCleaner(wsk.action, actionName3) {
+                (action, name) => action.create(name, artifact = Some(file), expectedExitCode = SUCCESS_EXIT, web = Some("true"))
+            }
+            //Create apiexperimentals
+            println("Create api-experimental: Base Path " + base2)
+            wsk.apiexperimental.create(
+              basepath = Some(base2),
+              relpath = Some("/relPath1"),
+              operation = Some("get"),
+              action = Some(actionName2)
+            )
+            println("Create api-experimental: Base Path " + base1)
+            wsk.apiexperimental.create(
+              basepath = Some(base1),
+              relpath = Some("/relPath2"),
+              operation = Some("delete"),
+              action = Some(actionName1)
+            )
+            println("Create api-experimental: Base Path " + base3)
+            wsk.apiexperimental.create(
+              basepath = Some(base3),
+              relpath = Some("/relPath3"),
+              operation = Some("head"),
+              action = Some(actionName3)
+            )
+            val original = wsk.apiexperimental.list().stdout
+            val originalFull = wsk.apiexperimental.list(full = Some(true)).stdout
+            val scalaSorted = List(base1 + "/", base2 + "/", base3 + "/")
+            val regex = "/BaseTestPath[1-3]/".r
+            val list  = (regex.findAllMatchIn(original)).toList
+            val listFull  = (regex.findAllMatchIn(originalFull)).toList
+            scalaSorted.toString shouldEqual list.toString
+            scalaSorted.toString shouldEqual listFull.toString
+        } finally {
+            //Clean up apiexperimentals
+            println("Delete api-experimental: Base Path " + base1)
+            wsk.apiexperimental.delete(base1, expectedExitCode = DONTCARE_EXIT)
+            println("Delete api-experimental: Base Path " + base2)
+            wsk.apiexperimental.delete(base2, expectedExitCode = DONTCARE_EXIT)
+            println("Delete api-experimental: Base Path " + base3)
+            wsk.apiexperimental.delete(base3, expectedExitCode = DONTCARE_EXIT)
+        }
+    }
+
+    it should "return a list of alphabetized api-experimental by action name" in withAssetCleaner(wskprops) {
+    (wp, assetHelper) =>
+
+        val actionName1 = "actionName1"
+        val actionName2 = "actionName2"
+        val actionName3 = "actionName3"
+        val base1 = "/BaseTestPath1"
+        val base2 = "/BaseTestPath2"
+        val base3 = "/BaseTestPath3"
+
+        try {
+            //Create Actions for api-experimentals
+            val file = TestUtils.getTestActionFilename(s"echo-web-http.js")
+            println("Create Action: " + actionName1)
+            assetHelper.withCleaner(wsk.action, actionName1) {
+                (action, name) => action.create(name, artifact = Some(file), expectedExitCode = SUCCESS_EXIT, web = Some("true"))
+            }
+            println("Create Action: " + actionName2)
+            assetHelper.withCleaner(wsk.action, actionName2) {
+                (action, name) => action.create(name, artifact = Some(file), expectedExitCode = SUCCESS_EXIT, web = Some("true"))
+            }
+            println("Create Action: " + actionName3)
+            assetHelper.withCleaner(wsk.action, actionName3) {
+                (action, name) => action.create(name, artifact = Some(file), expectedExitCode = SUCCESS_EXIT, web = Some("true"))
+            }
+            //Create api-experimentals
+            println("Create api-experimental: Base Path " + base2)
+            wsk.apiexperimental.create(
+              basepath = Some(base2),
+              relpath = Some("/relPath1"),
+              operation = Some("get"),
+              action = Some(actionName2)
+            )
+            println("Create apiexperimental: Base Path " + base1)
+            wsk.apiexperimental.create(
+              basepath = Some(base1),
+              relpath = Some("/relPath2"),
+              operation = Some("delete"),
+              action = Some(actionName1)
+            )
+            println("Create apiexperimental: Base Path " + base3)
+            wsk.apiexperimental.create(
+              basepath = Some(base3),
+              relpath = Some("/relPath3"),
+              operation = Some("head"),
+              action = Some(actionName3)
+            )
+            val original = wsk.apiexperimental.list(sortAction = Some(true)).stdout
+            val originalFull = wsk.apiexperimental.list(full = Some(true), sortAction = Some(true)).stdout
+            val scalaSorted = List(actionName1, actionName2, actionName3)
+            val regex = "actionName[1-3]".r
+            val list  = (regex.findAllMatchIn(original)).toList
+            val listFull  = (regex.findAllMatchIn(originalFull)).toList
+            scalaSorted.toString shouldEqual list.toString
+            scalaSorted.toString shouldEqual listFull.toString
+        } finally {
+            //Clean up apiexperimentals
+            println("Delete apiexperimental: Base Path " + base1)
+            wsk.apiexperimental.delete(base1, expectedExitCode = DONTCARE_EXIT)
+            println("Delete apiexperimental: Base Path " + base2)
+            wsk.apiexperimental.delete(base2, expectedExitCode = DONTCARE_EXIT)
+            println("Delete apiexperimental: Base Path " + base3)
+            wsk.apiexperimental.delete(base3, expectedExitCode = DONTCARE_EXIT)
+        }
+    }
+
     it should s"create an API and successfully invoke that API" in {
         val testName = "APIGWe_HEALTHTEST1"
         val testbasepath = "/" + testName + "_bp"
@@ -143,6 +275,147 @@ class ApiGwEndToEndTests
     }
 
     behavior of "Wsk api"
+
+    it should "return a list of alphabetized api" in withAssetCleaner(wskprops) {
+    (wp, assetHelper) =>
+
+        val actionName1 = "actionName1"
+        val actionName2 = "actionName2"
+        val actionName3 = "actionName3"
+        val base1 = "/BaseTestPath1"
+        val base2 = "/BaseTestPath2"
+        val base3 = "/BaseTestPath3"
+
+        try {
+            //Create Actions for Apis
+            val file = TestUtils.getTestActionFilename(s"echo-web-http.js")
+            println("Create Action: " + actionName1)
+            assetHelper.withCleaner(wsk.action, actionName1) {
+                (action, name) => action.create(name, artifact = Some(file), expectedExitCode = SUCCESS_EXIT, web = Some("true"))
+            }
+            println("Create Action: " + actionName2)
+            assetHelper.withCleaner(wsk.action, actionName2) {
+                (action, name) => action.create(name, artifact = Some(file), expectedExitCode = SUCCESS_EXIT, web = Some("true"))
+            }
+            println("Create Action: " + actionName3)
+            assetHelper.withCleaner(wsk.action, actionName3) {
+                (action, name) => action.create(name, artifact = Some(file), expectedExitCode = SUCCESS_EXIT, web = Some("true"))
+            }
+            //Create Apis
+            println("Create API: Base Path " + base2)
+            wsk.api.create(
+              basepath = Some(base2),
+              relpath = Some("/relPath1"),
+              operation = Some("get"),
+              action = Some(actionName2),
+              cliCfgFile = Some(cliWskPropsFile.getCanonicalPath())
+            )
+            println("Create API: Base Path " + base1)
+            wsk.api.create(
+              basepath = Some(base1),
+              relpath = Some("/relPath2"),
+              operation = Some("delete"),
+              action = Some(actionName1),
+              cliCfgFile = Some(cliWskPropsFile.getCanonicalPath())
+            )
+            println("Create API: Base Path " + base3)
+            wsk.api.create(
+              basepath = Some(base3),
+              relpath = Some("/relPath3"),
+              operation = Some("head"),
+              action = Some(actionName3),
+              cliCfgFile = Some(cliWskPropsFile.getCanonicalPath())
+            )
+            val original = wsk.api.list(cliCfgFile = Some(cliWskPropsFile.getCanonicalPath())).stdout
+            val originalFull = wsk.api.list(full = Some(true), cliCfgFile = Some(cliWskPropsFile.getCanonicalPath())).stdout
+            val scalaSorted = List(base1 + "/", base2 + "/", base3 + "/")
+            val regex = "/BaseTestPath[1-3]/".r
+            val list  = (regex.findAllMatchIn(original)).toList
+            val listFull = (regex.findAllMatchIn(originalFull)).toList
+            scalaSorted.toString shouldEqual list.toString
+            scalaSorted.toString shouldEqual listFull.toString
+        } finally {
+            //Clean up Apis
+            println("Delete API: Base Path " + base1)
+            wsk.api.delete(base1, expectedExitCode = DONTCARE_EXIT, cliCfgFile = Some(cliWskPropsFile.getCanonicalPath()))
+            println("Delete API: Base Path " + base2)
+            wsk.api.delete(base2, expectedExitCode = DONTCARE_EXIT, cliCfgFile = Some(cliWskPropsFile.getCanonicalPath()))
+            println("Delete API: Base Path " + base3)
+            wsk.api.delete(base3, expectedExitCode = DONTCARE_EXIT, cliCfgFile = Some(cliWskPropsFile.getCanonicalPath()))
+        }
+    }
+
+    it should "return a list of alphabetized api by action name" in withAssetCleaner(wskprops) {
+    (wp, assetHelper) =>
+
+        val actionName1 = "actionName1"
+        val actionName2 = "actionName2"
+        val actionName3 = "actionName3"
+        val base1 = "/BaseTestPath1"
+        val base2 = "/BaseTestPath2"
+        val base3 = "/BaseTestPath3"
+
+        try {
+            //Create Actions for Apis
+            val file = TestUtils.getTestActionFilename(s"echo-web-http.js")
+            println("Create Action: " + actionName1)
+            assetHelper.withCleaner(wsk.action, actionName1) {
+                (action, name) => action.create(name, artifact = Some(file), expectedExitCode = SUCCESS_EXIT, web = Some("true"))
+            }
+            println("Create Action: " + actionName2)
+            assetHelper.withCleaner(wsk.action, actionName2) {
+                (action, name) => action.create(name, artifact = Some(file), expectedExitCode = SUCCESS_EXIT, web = Some("true"))
+            }
+            println("Create Action: " + actionName3)
+            assetHelper.withCleaner(wsk.action, actionName3) {
+                (action, name) => action.create(name, artifact = Some(file), expectedExitCode = SUCCESS_EXIT, web = Some("true"))
+            }
+            //Create Apis
+            println("Create API: Base Path " + base2)
+            wsk.api.create(
+              basepath = Some(base2),
+              relpath = Some("/relPath1"),
+              operation = Some("get"),
+              action = Some(actionName2),
+              cliCfgFile = Some(cliWskPropsFile.getCanonicalPath())
+            )
+            println("Create API: Base Path " + base1)
+            wsk.api.create(
+              basepath = Some(base1),
+              relpath = Some("/relPath2"),
+              operation = Some("delete"),
+              action = Some(actionName1),
+              cliCfgFile = Some(cliWskPropsFile.getCanonicalPath())
+            )
+            println("Create API: Base Path " + base3)
+            wsk.api.create(
+              basepath = Some(base3),
+              relpath = Some("/relPath3"),
+              operation = Some("head"),
+              action = Some(actionName3),
+              cliCfgFile = Some(cliWskPropsFile.getCanonicalPath())
+            )
+            val original = wsk.api.list(sortAction = Some(true),
+                cliCfgFile = Some(cliWskPropsFile.getCanonicalPath())).stdout
+            val originalFull = wsk.api.list(full = Some(true), sortAction = Some(true),
+                cliCfgFile = Some(cliWskPropsFile.getCanonicalPath())).stdout
+            val scalaSorted = List(actionName1, actionName2, actionName3)
+            val regex = "actionName[1-3]".r
+            val list  = (regex.findAllMatchIn(original)).toList
+            val listFull  = (regex.findAllMatchIn(originalFull)).toList
+            scalaSorted.toString shouldEqual list.toString
+            scalaSorted.toString shouldEqual listFull.toString
+        } finally {
+            //Clean up Apis
+            println("Delete API: Base Path " + base1)
+            wsk.api.delete(base1, expectedExitCode = DONTCARE_EXIT, cliCfgFile = Some(cliWskPropsFile.getCanonicalPath()))
+            println("Delete API: Base Path " + base2)
+            wsk.api.delete(base2, expectedExitCode = DONTCARE_EXIT, cliCfgFile = Some(cliWskPropsFile.getCanonicalPath()))
+            println("Delete API: Base Path " + base3)
+            wsk.api.delete(base3, expectedExitCode = DONTCARE_EXIT, cliCfgFile = Some(cliWskPropsFile.getCanonicalPath()))
+        }
+    }
+
 
     it should s"create an API and successfully invoke that API" in {
         val testName = "APIGW_HEALTHTEST1"

@@ -242,27 +242,70 @@ func getEscapedJSON(value string) (string) {
 func isValidJSON(value string) (bool) {
     var jsonInterface interface{}
     err := json.Unmarshal([]byte(value), &jsonInterface)
+
     return err == nil
 }
 
 var boldString = color.New(color.Bold).SprintFunc()
 
+type SortCmds []whisk.Sortable
+//Uses Go builtin sort to sort commands based on their compare methods
+//Param: Takes in a array of Sortable interfaces which contains a specific command
+func (s SortCmds) Len() int { return len(s) }
+func (s SortCmds) Less(i,j int) bool { return s[i].Compare(s[j]) }
+func (s SortCmds) Swap(i,j int) { s[i], s[j] = s[j], s[i] }
+
+//Prints the parameters/list for wsk xxxx list
+//Identifies type and then copies array into an array of interfaces(Sortable) to be sorted and printed
+//Param: Takes in an interace which contains an array of a command(Ex: []Action)
 func printList(collection interface{}) {
-    switch collection := collection.(type) {
+    var commandToSort []whisk.Sortable
+    switch collection := collection.(type){
     case []whisk.Action:
-        printActionList(collection)
+        for i := range collection {
+            commandToSort = append(commandToSort, collection[i])
+        }
+        sort.Sort(SortCmds(commandToSort))
+        printCommandsList(commandToSort,true)
     case []whisk.Trigger:
-        printTriggerList(collection)
+      for i := range collection {
+          commandToSort = append(commandToSort, collection[i])
+      }
+      sort.Sort(SortCmds(commandToSort))
+      printCommandsList(commandToSort,true)
     case []whisk.Package:
-        printPackageList(collection)
+      for i := range collection {
+          commandToSort = append(commandToSort, collection[i])
+      }
+      sort.Sort(SortCmds(commandToSort))
+      printCommandsList(commandToSort,true)
     case []whisk.Rule:
-        printRuleList(collection)
+      for i := range collection {
+        commandToSort = append(commandToSort, collection[i])
+      }
+      sort.Sort(SortCmds(commandToSort))
+      printCommandsList(commandToSort,true)
     case []whisk.Namespace:
-        printNamespaceList(collection)
+      for i := range collection {
+        commandToSort = append(commandToSort, collection[i])
+      }
+      sort.Sort(SortCmds(commandToSort))
+      printCommandsList(commandToSort,true)
     case []whisk.Activation:
         printActivationList(collection)
-    case []whisk.Api:
-        printApiList(collection)
+    case []whisk.ApiFilteredList:
+      for i:= range collection {
+        commandToSort = append(commandToSort, collection[i])
+      }
+      sort.Sort(SortCmds(commandToSort))
+      printCommandsList(commandToSort,false)
+    case []whisk.ApiFilteredRow:
+      for i:= range collection {
+        commandToSort = append(commandToSort, collection[i])
+      }
+      sort.Sort(SortCmds(commandToSort))
+      printCommandsList(commandToSort,false)
+
     }
 }
 
@@ -298,40 +341,16 @@ func printSummary(collection interface{}) {
     case *whisk.Activation:
     }
 }
+//Used to print Action, Tigger, Package, and Rule lists
+//Param: Takes in a array of Sortable interface
+func printCommandsList(commands []whisk.Sortable, printName bool) {
+    commandName := reflect.TypeOf(commands[0]).Name()
 
-func printActionList(actions []whisk.Action) {
-    fmt.Fprintf(color.Output, "%s\n", boldString("actions"))
-    for _, action := range actions {
-        publishState := wski18n.T("private")
-        kind := getValueString(action.Annotations, "exec")
-        fmt.Printf("%-70s %s %s\n", fmt.Sprintf("/%s/%s", action.Namespace, action.Name), publishState, kind)
+    if printName {
+      fmt.Fprintf(color.Output, "%s\n", boldString(commandName))
     }
-}
-
-func printTriggerList(triggers []whisk.Trigger) {
-    fmt.Fprintf(color.Output, "%s\n", boldString("triggers"))
-    for _, trigger := range triggers {
-        publishState := wski18n.T("private")
-        fmt.Printf("%-70s %s\n", fmt.Sprintf("/%s/%s", trigger.Namespace, trigger.Name), publishState)
-    }
-}
-
-func printPackageList(packages []whisk.Package) {
-    fmt.Fprintf(color.Output, "%s\n", boldString("packages"))
-    for _, xPackage := range packages {
-        publishState := wski18n.T("private")
-        if xPackage.Publish != nil && *xPackage.Publish {
-            publishState = wski18n.T("shared")
-        }
-        fmt.Printf("%-70s %s\n", fmt.Sprintf("/%s/%s", xPackage.Namespace, xPackage.Name), publishState)
-    }
-}
-
-func printRuleList(rules []whisk.Rule) {
-    fmt.Fprintf(color.Output, "%s\n", boldString("rules"))
-    for _, rule := range rules {
-        publishState := wski18n.T("private")
-        fmt.Printf("%-70s %s\n", fmt.Sprintf("/%s/%s", rule.Namespace, rule.Name), publishState)
+    for i := range commands {
+      fmt.Print(commands[i].ListString())
     }
 }
 

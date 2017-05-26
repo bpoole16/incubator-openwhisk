@@ -20,6 +20,8 @@ import (
     "net/http"
     "errors"
     "../wski18n"
+    "strings"
+    "fmt"
 )
 
 type Namespace struct {
@@ -36,6 +38,29 @@ type Contents struct {
 
 type NamespaceService struct {
     client *Client
+}
+
+/*
+ *  Compare(s) compares Namespace n to Sortable s for the purpose of sorting.
+ *  params: Sortable type s that is also of type Namespace (REQUIRED).
+ *  ***Method of type Sortable***
+ *  ***By default, sorts Alphabetically***
+ */
+func(namespace Namespace) Compare(sortable Sortable) bool {
+    namespaceToCompare := sortable.(Namespace)
+    namespaceString := strings.ToLower(namespace.Name)
+    compareString := strings.ToLower(namespaceToCompare.Name)
+
+    return namespaceString < compareString
+}
+
+/*
+ *  ListString() returns a compound string of required parameters for printing
+ *    from CLI command `wsk namespace list`.
+ *  ***Method of type Sortable***
+ */
+func(namespace Namespace) ListString() string {
+    return fmt.Sprintf("%s\n", namespace.Name)
 }
 
 // get a list of available namespaces

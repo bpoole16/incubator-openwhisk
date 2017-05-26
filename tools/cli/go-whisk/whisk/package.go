@@ -22,6 +22,7 @@ import (
     "net/url"
     "errors"
     "../wski18n"
+    "strings"
 )
 
 type PackageService struct {
@@ -45,6 +46,7 @@ type Package struct {
     Actions     []Action            `json:"actions,omitempty"`
     Feeds       []Action            `json:"feeds,omitempty"`
 }
+
 func (p *Package) GetName() string {
     return p.Name
 }
@@ -81,6 +83,39 @@ type PackageListOptions struct {
     Skip        int                 `url:"skip"`
     Since       int                 `url:"since,omitempty"`
     Docs        bool                `url:"docs,omitempty"`
+}
+
+/*
+ *  Compare(s) compares Package p to Sortable s for the purpose of sorting.
+ *  params: Sortable type s that is also of type Package (REQUIRED)
+ *  ***Method of type Sortable***
+ *  ***By default, sorts Alphabetically***
+ */
+func(xPackage Package) Compare(sortable Sortable) bool{
+  // convert s back to proper type
+  packageToCompare := sortable.(Package)
+  packageString := strings.ToLower(fmt.Sprintf("%s%s",xPackage.Namespace,
+      xPackage.Name))
+  compareString := strings.ToLower(fmt.Sprintf("%s%s", packageToCompare.Namespace,
+      packageToCompare.Name))
+
+  return packageString < compareString
+}
+
+/*
+ *  ListString() returns a compound string of required parameters for printing
+ *    from CLI command `wsk package list`.
+ *  ***Method of type Sortable***
+ */
+func(xPackage Package) ListString() string{
+    publishState := wski18n.T("private")
+
+    if xPackage.Publish != nil && *xPackage.Publish {
+        publishState = wski18n.T("shared")
+    }
+
+    return fmt.Sprintf("%-70s %s\n", fmt.Sprintf("/%s/%s", xPackage.Namespace,
+        xPackage.Name), publishState)
 }
 
 func (s *PackageService) List(options *PackageListOptions) ([]Package, *http.Response, error) {

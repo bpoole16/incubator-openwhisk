@@ -1360,8 +1360,12 @@
     "translation": "display full description of each API"
   },
   {
-    "id": "An API host must be provided.",
-    "translation": "An API host must be provided."
+    "id": "display full description of each API",
+    "translation": "display full description of each API"
+  },
+  {
+    "id": "sort api list by action name first followed by base-path/rel-path/verb",
+    "translation": "sort api list by action name first followed by base-path/rel-path/verb."
   },
   {
     "id": "Request accepted, but processing not completed yet.",

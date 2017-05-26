@@ -123,6 +123,12 @@ wsk api list -f
 ```
 ```
 ok: APIs
+Action: deleteBooks
+  API Name: Book Club
+  Base path: /club
+  Path: /books
+  Verb: delete
+  URL: https://${APIHOST}:9001/api/21ef035/club/books
 Action: getBooks
   API Name: Book Club
   Base path: /club
@@ -141,13 +147,9 @@ Action: putBooks
   Path: /books
   Verb: put
   URL: https://${APIHOST}:9001/api/21ef035/club/books
-Action: deleteBooks
-  API Name: Book Club
-  Base path: /club
-  Path: /books
-  Verb: delete
-  URL: https://${APIHOST}:9001/api/21ef035/club/books
 ```
+
+Side Note: APIs will be sorted alphabetically by default, first by Base path, then by Path (relative path), then by Verb. If we need to sort alphabetically by Action name, we can add the `-n` or `--sort-action` flags to do so. 
 
 Now just for fun let's add a new book `JavaScript: The Good Parts` with a HTTP __POST__
 ```

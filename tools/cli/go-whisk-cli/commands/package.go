@@ -418,7 +418,12 @@ var packageListCmd = &cobra.Command{
       return werr
     }
 
-    printList(packages)
+    if (len(packages) != 0) {
+        whisk.Debug(whisk.DbgInfo, "Sending packages to be printed")
+        printList(packages)
+    } else {
+        whisk.Debug(whisk.DbgInfo, "No packages found in package list")
+    }
     return nil
   },
 }

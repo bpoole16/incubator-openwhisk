@@ -456,7 +456,12 @@ var triggerListCmd = &cobra.Command{
             werr := whisk.MakeWskErrorFromWskError(errors.New(errStr), err, whisk.EXITCODE_ERR_GENERAL, whisk.DISPLAY_MSG, whisk.NO_DISPLAY_USAGE)
             return werr
         }
-        printList(triggers)
+        if (len(triggers) != 0) {
+            whisk.Debug(whisk.DbgInfo, "Sending triggers to be printed")
+            printList(triggers)
+        } else {
+            whisk.Debug(whisk.DbgInfo, "No triggers found in trigger list")
+        }
         return nil
     },
 }
