@@ -22,6 +22,7 @@ import (
     "net/url"
     "errors"
     "../wski18n"
+    "strings"
 )
 
 type PackageService struct {
@@ -35,8 +36,7 @@ type PackageInterface interface {
 // Use this struct to represent the package/binding sent from the Whisk server
 // Binding is a bool ???MWD20160602 now seeing Binding as a struct???
 type Package struct {
-    Namespace   string              `json:"namespace,omitempty"`
-    Name        string              `json:"name,omitempty"`
+    PackageBase
     Version     string              `json:"version,omitempty"`
     Publish     *bool               `json:"publish,omitempty"`
     Annotations KeyValueArr         `json:"annotations,omitempty"`
@@ -45,6 +45,7 @@ type Package struct {
     Actions     []Action            `json:"actions,omitempty"`
     Feeds       []Action            `json:"feeds,omitempty"`
 }
+
 func (p *Package) GetName() string {
     return p.Name
 }
@@ -82,6 +83,16 @@ type PackageListOptions struct {
     Since       int                 `url:"since,omitempty"`
     Docs        bool                `url:"docs,omitempty"`
 }
+
+type PackageBase struct{
+  Namespace   string              `json:"namespace,omitempty"`
+  Name        string              `json:"name,omitempty"`
+
+}
+
+func (base PackageBase)BaseName() string { return base.Name }
+func (base PackageBase)NameSpace() string {return base.Namespace }
+func (base PackageBase)String() string { return strings.ToLower(fmt.Sprintf("%s%s",base.Namespace,base.Name)) }
 
 func (s *PackageService) List(options *PackageListOptions) ([]Package, *http.Response, error) {
     route := fmt.Sprintf("packages")

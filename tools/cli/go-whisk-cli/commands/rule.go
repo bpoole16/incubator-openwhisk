@@ -189,7 +189,7 @@ var ruleCreateCmd = &cobra.Command{
         actionName := getQualifiedName(args[2], Properties.Namespace)
 
         rule := &whisk.Rule{
-            Name:    ruleName,
+            RuleBase:    whisk.RuleBase{client.Namespace,ruleName},
             Trigger: triggerName,
             Action:  actionName,
         }
@@ -243,7 +243,7 @@ var ruleUpdateCmd = &cobra.Command{
         actionName := getQualifiedName(args[2], Properties.Namespace)
 
         rule := &whisk.Rule{
-            Name:    ruleName,
+            RuleBase: whisk.RuleBase{client.Namespace,ruleName},
             Trigger: triggerName,
             Action:  actionName,
         }

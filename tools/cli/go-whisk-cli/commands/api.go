@@ -1187,7 +1187,7 @@ var apiListCmdV2 = &cobra.Command{
                             "ok": color.GreenString("ok:"),
                         }))
                 fmt.Printf(fmtString, "Action", "Verb", "API Name", "URL")
-                for i:=0; i<len(retApiArray.Apis); i++ {
+                for i:=0; i< len(retApiArray.Apis); i++ {
                     printFilteredListRowV2(retApiArray.Apis[i].ApiValue, apiPath, apiVerb, maxActionNameSize, maxApiNameSize)
                 }
             } else {

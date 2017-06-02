@@ -28,6 +28,7 @@ import (
     "../wski18n"
 )
 
+
 // addOptions adds the parameters in opt as URL query parameters to s.  opt
 // must be a struct whose fields may contain "url" tags.
 func addRouteOptions(route string, options interface{}) (*url.URL, error) {

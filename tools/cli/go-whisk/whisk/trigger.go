@@ -22,6 +22,7 @@ import (
     "errors"
     "net/url"
     "../wski18n"
+    "strings"
 )
 
 type TriggerService struct {
@@ -29,8 +30,7 @@ type TriggerService struct {
 }
 
 type Trigger struct {
-    Namespace       string          `json:"namespace,omitempty"`
-    Name            string          `json:"name,omityempty"`
+    TriggerBase
     Version         string          `json:"version,omitempty"`
     ActivationId    string          `json:"activationId,omitempty"`
     Annotations     KeyValueArr     `json:"annotations,omitempty"`
@@ -45,6 +45,16 @@ type TriggerListOptions struct {
     Skip            int             `url:"skip"`
     Docs            bool            `url:"docs,omitempty"`
 }
+
+type TriggerBase struct {
+  Namespace       string          `json:"namespace,omitempty"`
+  Name            string          `json:"name,omityempty"`
+
+}
+
+func (base TriggerBase)NameSpace() string {return base.Namespace }
+func (base TriggerBase)BaseName() string { return base.Name }
+func (base TriggerBase)String() string { return strings.ToLower(fmt.Sprintf("%s%s",base.Namespace,base.Name)) }
 
 func (s *TriggerService) List(options *TriggerListOptions) ([]Trigger, *http.Response, error) {
     route := "triggers"

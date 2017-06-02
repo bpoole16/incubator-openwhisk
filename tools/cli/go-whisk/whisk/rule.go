@@ -30,8 +30,7 @@ type RuleService struct {
 }
 
 type Rule struct {
-    Namespace string    `json:"namespace,omitempty"`
-    Name      string    `json:"name,omitempty"`
+    RuleBase
     Version   string    `json:"version,omitempty"`
     Status  string      `json:"status"`
     Trigger interface{} `json:"trigger"`
@@ -45,6 +44,16 @@ type RuleListOptions struct {
     Skip        int     `url:"skip"`
     Docs        bool    `url:"docs,omitempty"`
 }
+type RuleBase struct{
+  Namespace string    `json:"namespace,omitempty"`
+  Name      string    `json:"name,omitempty"`
+
+}
+
+func (base RuleBase)BaseName() string { return base.Name }
+func (base RuleBase)NameSpace() string {return base.Namespace }
+func (base RuleBase)String() string { return strings.ToLower(fmt.Sprintf("%s%s",base.Namespace,base.Name)) }
+
 
 func (s *RuleService) List(options *RuleListOptions) ([]Rule, *http.Response, error) {
     route := "rules"

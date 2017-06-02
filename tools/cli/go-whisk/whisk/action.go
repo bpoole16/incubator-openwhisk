@@ -22,6 +22,12 @@ import (
     "errors"
     "net/url"
     "../wski18n"
+    "strings"
+
+
+
+
+
 )
 
 type ActionService struct {
@@ -29,17 +35,17 @@ type ActionService struct {
 }
 
 type Action struct {
-    Namespace   string      `json:"namespace,omitempty"`
-    Name        string      `json:"name,omitempty"`
+    ActionBase
     Version     string      `json:"version,omitempty"`
     Exec        *Exec       `json:"exec,omitempty"`
-    Annotations KeyValueArr `json:"annotations,omitempty"`
     Parameters  KeyValueArr `json:"parameters,omitempty"`
+    Annotations KeyValueArr `json:"annotations,omitempty"`
     Limits      *Limits     `json:"limits,omitempty"`
     Error       string      `json:"error,omitempty"`
     Code        int         `json:"code,omitempty"`
     Publish     *bool       `json:"publish,omitempty"`
 }
+
 
 type Exec struct {
     Kind        string      `json:"kind,omitempty"`
@@ -55,6 +61,14 @@ type ActionListOptions struct {
     Skip        int         `url:"skip"`
     Docs        bool        `url:"docs,omitempty"`
 }
+type ActionBase struct{
+  Name        string      `json:"name,omitempty"`
+  Namespace   string      `json:"namespace,omitempty"`
+}
+
+func (base ActionBase)BaseName() string { return base.Name }
+func (base ActionBase)NameSpace() string {return base.Namespace }
+func (base ActionBase)String() string { return strings.ToLower(fmt.Sprintf("%s%s",base.Namespace,base.Name)) }
 
 ////////////////////
 // Action Methods //
