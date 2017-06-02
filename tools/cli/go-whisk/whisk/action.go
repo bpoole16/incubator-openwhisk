@@ -35,7 +35,8 @@ type ActionService struct {
 }
 
 type Action struct {
-    ActionBase
+    Name        string      `json:"name,omitempty"`
+    Namespace   string      `json:"namespace,omitempty"`
     Version     string      `json:"version,omitempty"`
     Exec        *Exec       `json:"exec,omitempty"`
     Parameters  KeyValueArr `json:"parameters,omitempty"`
@@ -61,14 +62,14 @@ type ActionListOptions struct {
     Skip        int         `url:"skip"`
     Docs        bool        `url:"docs,omitempty"`
 }
-type ActionBase struct{
-  Name        string      `json:"name,omitempty"`
-  Namespace   string      `json:"namespace,omitempty"`
-}
 
-func (base ActionBase)BaseName() string { return base.Name }
-func (base ActionBase)NameSpace() string {return base.Namespace }
-func (base ActionBase)String() string { return strings.ToLower(fmt.Sprintf("%s%s",base.Namespace,base.Name)) }
+func(a Action) Compare(s Sortable) bool{
+  as := s.(Action)
+  actionString := strings.ToLower(fmt.Sprintf("%s%s",a.Namespace, a.Name))
+  compareString := strings.ToLower(fmt.Sprintf("%s%s", as.Namespace, as.Name))
+  
+  return actionString < compareString
+}
 
 ////////////////////
 // Action Methods //

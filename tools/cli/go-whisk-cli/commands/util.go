@@ -249,19 +249,13 @@ func isValidJSON(value string) (bool) {
 
 var boldString = color.New(color.Bold).SprintFunc()
 
-type WhiskBase interface{
-  BaseName() string
-  NameSpace() string
-  String() string
-}
-
-type SortCmds []WhiskBase
-func (s SortCmds) Len() int { return len(s)}
-func (s SortCmds) Less(i,j int) bool { return s[i].String() < s[j].String() }
+type SortCmds []whisk.Sortable
+func (s SortCmds) Len() int { return len(s) }
+func (s SortCmds) Less(i,j int) bool { return s[i].Compare(s[j]) }
 func (s SortCmds) Swap(i,j int) { s[i], s[j] = s[j], s[i] }
 
 func printList(collection interface{}) {
-    var commandToSort []WhiskBase
+    var commandToSort []whisk.Sortable
     switch collection := collection.(type){
     case []whisk.Action:
         for i := range collection {
@@ -279,14 +273,14 @@ func printList(collection interface{}) {
       for i := range collection {
           commandToSort = append(commandToSort, collection[i])
         }
-        sort.Sort(SortCmds(commandToSort))
-        printPackageList(commandToSort)
+      sort.Sort(SortCmds(commandToSort))
+      printPackageList(commandToSort)
     case []whisk.Rule:
       for i := range collection {
           commandToSort = append(commandToSort, collection[i])
         }
-        sort.Sort(SortCmds(commandToSort))
-        printRuleList(commandToSort)
+      sort.Sort(SortCmds(commandToSort))
+      printRuleList(commandToSort)
     case []whisk.Namespace:
         printNamespaceList(collection)
     case []whisk.Activation:
@@ -329,39 +323,39 @@ func printSummary(collection interface{}) {
     }
 }
 
-func printActionList(actions []WhiskBase) {
+func printActionList(actions []whisk.Sortable) {
     fmt.Fprintf(color.Output, "%s\n", boldString("actions"))
       for i:= range actions  {
         publishState := wski18n.T("private")
         kind := getValueString(actions[i].(whisk.Action).Annotations, "exec")
-        fmt.Printf("%-70s %s %s\n", fmt.Sprintf("/%s/%s", actions[i].NameSpace(), actions[i].BaseName()), publishState, kind)
+        fmt.Printf("%-70s %s %s\n", fmt.Sprintf("/%s/%s", actions[i].(whisk.Action).Namespace, actions[i].(whisk.Action).Name), publishState, kind)
     }
 }
 
-func printTriggerList(triggers []WhiskBase) {
+func printTriggerList(triggers []whisk.Sortable) {
     fmt.Fprintf(color.Output, "%s\n", boldString("triggers"))
     for i := range triggers {
         publishState := wski18n.T("private")
-        fmt.Printf("%-70s %s\n", fmt.Sprintf("/%s/%s", triggers[i].NameSpace(), triggers[i].BaseName()), publishState)
+        fmt.Printf("%-70s %s\n", fmt.Sprintf("/%s/%s", triggers[i].(whisk.Trigger).Namespace, triggers[i].(whisk.Trigger).Name), publishState)
     }
 }
 
-func printPackageList(packages []WhiskBase) {
+func printPackageList(packages []whisk.Sortable) {
     fmt.Fprintf(color.Output, "%s\n", boldString("packages"))
     for i := range packages {
         publishState := wski18n.T("private")
         if packages[i].(whisk.Package).Publish != nil && *packages[i].(whisk.Package).Publish {
             publishState = wski18n.T("shared")
         }
-        fmt.Printf("%-70s %s\n", fmt.Sprintf("/%s/%s", packages[i].NameSpace(), packages[i].BaseName()), publishState)
+        fmt.Printf("%-70s %s\n", fmt.Sprintf("/%s/%s", packages[i].(whisk.Package).Namespace, packages[i].(whisk.Package).Name), publishState)
     }
 }
 
-func printRuleList(rules []WhiskBase) {
+func printRuleList(rules []whisk.Sortable) {
     fmt.Fprintf(color.Output, "%s\n", boldString("rules"))
     for i := range rules {
         publishState := wski18n.T("private")
-        fmt.Printf("%-70s %s\n", fmt.Sprintf("/%s/%s", rules[i].NameSpace(), rules[i].BaseName()), publishState)
+        fmt.Printf("%-70s %s\n", fmt.Sprintf("/%s/%s", rules[i].(whisk.Rule).Namespace, rules[i].(whisk.Rule).Name), publishState)
     }
 }
 

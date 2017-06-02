@@ -28,6 +28,9 @@ import (
     "../wski18n"
 )
 
+type Sortable interface {
+  Compare(s Sortable) bool
+}
 
 // addOptions adds the parameters in opt as URL query parameters to s.  opt
 // must be a struct whose fields may contain "url" tags.

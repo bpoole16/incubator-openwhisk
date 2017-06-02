@@ -193,7 +193,7 @@ var triggerCreateCmd = &cobra.Command{
         }
 
         trigger := &whisk.Trigger{
-            TriggerBase:  whisk.TriggerBase{ qName.namespace, qName.entityName},
+            Name:        qName.entityName,
             Annotations: annotations.(whisk.KeyValueArr),
         }
 
@@ -290,7 +290,7 @@ var triggerUpdateCmd = &cobra.Command{
         }
 
         trigger := &whisk.Trigger{
-            TriggerBase:  whisk.TriggerBase{ qName.namespace, qName.entityName},
+            Name:        qName.entityName,
             Parameters:  parameters.(whisk.KeyValueArr),
             Annotations: annotations.(whisk.KeyValueArr),
         }

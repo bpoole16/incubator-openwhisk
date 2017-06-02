@@ -179,7 +179,8 @@ var packageCreateCmd = &cobra.Command{
     }
 
     p := &whisk.Package{
-      PackageBase: whisk.PackageBase{qName.namespace,qName.entityName},
+      Name:        qName.entityName,
+      Namespace:   qName.namespace,
       Annotations: annotations.(whisk.KeyValueArr),
       Parameters:  parameters.(whisk.KeyValueArr),
     }
@@ -259,7 +260,8 @@ var packageUpdateCmd = &cobra.Command{
     }
 
     p := &whisk.Package{
-      PackageBase: whisk.PackageBase{qName.namespace,qName.entityName},
+      Name:        qName.entityName,
+      Namespace:   qName.namespace,
       Annotations: annotations.(whisk.KeyValueArr),
       Parameters:  parameters.(whisk.KeyValueArr),
     }
