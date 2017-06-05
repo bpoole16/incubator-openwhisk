@@ -48,12 +48,19 @@ type TriggerListOptions struct {
     Docs            bool            `url:"docs,omitempty"`
 }
 
-func(t Trigger) Compare(s Sortable) bool{
+func(t Trigger) Compare(s Sortable) bool {
   ts := s.(Trigger)
   triggerString := strings.ToLower(fmt.Sprintf("%s%s",t.Namespace, t.Name))
   compareString := strings.ToLower(fmt.Sprintf("%s%s", ts.Namespace,ts.Name))
-  
+
   return triggerString < compareString
+}
+
+func(t Trigger) ListString() string {
+  publishState := wski18n.T("private")
+
+  return fmt.Sprintf("%-70s %s\n", fmt.Sprintf("/%s/%s", t.Namespace, t.Name), publishState)
+
 }
 
 func (s *TriggerService) List(options *TriggerListOptions) ([]Trigger, *http.Response, error) {

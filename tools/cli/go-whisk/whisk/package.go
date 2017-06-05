@@ -90,8 +90,18 @@ func(p Package) Compare(s Sortable) bool{
   ps := s.(Package)
   packageString := strings.ToLower(fmt.Sprintf("%s%s",p.Namespace, p.Name))
   compareString := strings.ToLower(fmt.Sprintf("%s%s", ps.Namespace, ps.Name))
-  
+
   return packageString < compareString
+}
+
+func(p Package) ListString() string{
+  publishState := wski18n.T("private")
+  
+  if p.Publish != nil && *p.Publish {
+      publishState = wski18n.T("shared")
+  }
+
+ return fmt.Sprintf("%-70s %s\n", fmt.Sprintf("/%s/%s", p.Namespace, p.Name), publishState)
 }
 
 func (s *PackageService) List(options *PackageListOptions) ([]Package, *http.Response, error) {

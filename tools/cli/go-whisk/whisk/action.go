@@ -62,13 +62,28 @@ type ActionListOptions struct {
     Skip        int         `url:"skip"`
     Docs        bool        `url:"docs,omitempty"`
 }
-
+//Defines how actions should be sorted
+//Currently sorts, by default, by Alphabetical order
 func(a Action) Compare(s Sortable) bool{
   as := s.(Action)
   actionString := strings.ToLower(fmt.Sprintf("%s%s",a.Namespace, a.Name))
   compareString := strings.ToLower(fmt.Sprintf("%s%s", as.Namespace, as.Name))
-  
+
   return actionString < compareString
+}
+//Collects parameters to be printed for wsk Action list command
+func(a Action) ListString() string{
+  publishState := wski18n.T("private")
+  var kind string
+
+  for i:= range a.Annotations {
+    if (a.Annotations[i].Key == "exec") {
+      kind = a.Annotations[i].Value.(string)
+      break
+    }
+  }
+
+  return fmt.Sprintf("%-70s %s %s\n", fmt.Sprintf("/%s/%s", a.Namespace, a.Name), publishState, kind)
 }
 
 ////////////////////

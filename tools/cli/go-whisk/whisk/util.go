@@ -30,6 +30,7 @@ import (
 
 type Sortable interface {
   Compare(s Sortable) bool
+  ListString() string 
 }
 
 // addOptions adds the parameters in opt as URL query parameters to s.  opt
