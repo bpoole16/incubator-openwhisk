@@ -20,6 +20,8 @@ import (
     "net/http"
     "errors"
     "../wski18n"
+    "strings"
+    "fmt"
 )
 
 type ApiService struct {
@@ -201,6 +203,19 @@ const (
 ////////////////////
 // Api Methods //
 ////////////////////
+
+func(api ApiItemV2) Compare(s Sortable) bool{
+  as := s.(ApiItemV2)
+  apiString := strings.ToLower(fmt.Sprintf("%s",api.ApiValue.Swagger.BasePath))
+  compareString := strings.ToLower(fmt.Sprintf("%s", as.ApiValue.Swagger.BasePath))
+
+
+  return apiString < compareString
+}
+
+func(api ApiItemV2) ListString() string {
+  return api.ApiValue.Swagger.BasePath
+}
 
 func (s *ApiService) List(apiListOptions *ApiListRequestOptions) (*ApiListResponse, *http.Response, error) {
     route := "experimental/web/whisk.system/routemgmt/getApi.json"

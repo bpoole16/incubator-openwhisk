@@ -1187,6 +1187,8 @@ var apiListCmdV2 = &cobra.Command{
                             "ok": color.GreenString("ok:"),
                         }))
                 fmt.Printf(fmtString, "Action", "Verb", "API Name", "URL")
+
+                printList(retApiArray) //ADDED
                 for i:=0; i< len(retApiArray.Apis); i++ {
                     printFilteredListRowV2(retApiArray.Apis[i].ApiValue, apiPath, apiVerb, maxActionNameSize, maxApiNameSize)
                 }
@@ -1249,6 +1251,7 @@ func printFilteredListApiV2(resultApi *whisk.RetApiV2, apiPath string, apiVerb s
  * NOTE: Large action name and api name value will be truncated by their associated max size parameters.
  */
 func printFilteredListRowV2(resultApi *whisk.RetApiV2, apiPath string, apiVerb string, maxActionNameSize int, maxApiNameSize int) {
+
     baseUrl := strings.TrimSuffix(resultApi.BaseUrl, "/")
     apiName := resultApi.Swagger.Info.Title
     if (resultApi.Swagger != nil && resultApi.Swagger.Paths != nil) {

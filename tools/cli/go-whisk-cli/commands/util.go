@@ -290,8 +290,17 @@ func printList(collection interface{}) {
         printNamespaceList(collection)
     case []whisk.Activation:
         printActivationList(collection)
-    case []whisk.Api:
-        printApiList(collection)
+    case *whisk.RetApiArrayV2:
+        for i:= range collection.Apis {
+          commandToSort = append(commandToSort, collection.Apis[i])
+          fmt.Println(collection.Apis[i].ApiValue.Swagger.Paths)
+      }
+      sort.Sort(SortCmds(commandToSort))
+      for i := range commandToSort {
+        fmt.Println(commandToSort[i].ListString())
+        fmt.Println(collection.Apis[i].ApiValue.Swagger.Paths)
+      }
+
     }
 }
 
