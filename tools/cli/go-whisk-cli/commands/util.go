@@ -267,39 +267,41 @@ func printList(collection interface{}) {
             commandToSort = append(commandToSort, collection[i])
         }
         sort.Sort(SortCmds(commandToSort))
-        printCommandsList(commandToSort)
+        printCommandsList(commandToSort,true)
     case []whisk.Trigger:
       for i := range collection {
           commandToSort = append(commandToSort, collection[i])
       }
       sort.Sort(SortCmds(commandToSort))
-      printCommandsList(commandToSort)
+      printCommandsList(commandToSort,true)
     case []whisk.Package:
       for i := range collection {
           commandToSort = append(commandToSort, collection[i])
       }
       sort.Sort(SortCmds(commandToSort))
-      printCommandsList(commandToSort)
+      printCommandsList(commandToSort,true)
     case []whisk.Rule:
       for i := range collection {
         commandToSort = append(commandToSort, collection[i])
       }
       sort.Sort(SortCmds(commandToSort))
-      printCommandsList(commandToSort)
+      printCommandsList(commandToSort,true)
     case []whisk.Namespace:
         printNamespaceList(collection)
     case []whisk.Activation:
         printActivationList(collection)
-    case *whisk.RetApiArrayV2:
-        for i:= range collection.Apis {
-          commandToSort = append(commandToSort, collection.Apis[i])
-          fmt.Println(collection.Apis[i].ApiValue.Swagger.Paths)
+    case []whisk.ApiFilteredList:
+      for i:= range collection {
+        commandToSort = append(commandToSort, collection[i])
       }
       sort.Sort(SortCmds(commandToSort))
-      for i := range commandToSort {
-        fmt.Println(commandToSort[i].ListString())
-        fmt.Println(collection.Apis[i].ApiValue.Swagger.Paths)
+      printCommandsList(commandToSort,false)
+    case []whisk.ApiFilteredRow:
+      for i:= range collection {
+        commandToSort = append(commandToSort, collection[i])
       }
+      sort.Sort(SortCmds(commandToSort))
+      printCommandsList(commandToSort,false)
 
     }
 }
@@ -338,10 +340,12 @@ func printSummary(collection interface{}) {
 }
 //Used to print Action, Tigger, Package, and Rule lists
 //Param: Takes in a array of Sortable interface
-func printCommandsList(commands []whisk.Sortable) {
+func printCommandsList(commands []whisk.Sortable, printName bool) {
     commandName := reflect.TypeOf(commands[0]).Name()
 
+    if printName {
     fmt.Fprintf(color.Output, "%s\n", boldString(commandName))
+    }
     for i := range commands {
           fmt.Print(commands[i].ListString())
       }

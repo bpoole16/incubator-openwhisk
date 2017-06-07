@@ -185,6 +185,14 @@ type ApiSwaggerOpXOpenWhiskV2 struct {
     ApiUrl          string    `json:"url"`
 }
 
+type ApiFilteredList struct {
+  SortInfo          []string
+}
+
+type ApiFilteredRow struct {
+  SortInfo          []string
+}
+
 var ApiVerbs map[string]bool = map[string]bool {
     "GET": true,
     "PUT": true,
@@ -204,17 +212,36 @@ const (
 // Api Methods //
 ////////////////////
 
-func(api ApiItemV2) Compare(s Sortable) bool{
-  as := s.(ApiItemV2)
-  apiString := strings.ToLower(fmt.Sprintf("%s",api.ApiValue.Swagger.BasePath))
-  compareString := strings.ToLower(fmt.Sprintf("%s", as.ApiValue.Swagger.BasePath))
+func(api ApiFilteredList) Compare(s Sortable) bool{
+  as := s.(ApiFilteredList)
 
+  apiString := strings.ToLower(fmt.Sprintf("%s%s%s",api.SortInfo[2],api.SortInfo[3],api.SortInfo[4]))
+  compareString := strings.ToLower(fmt.Sprintf("%s%s%s", as.SortInfo[2],as.SortInfo[3],as.SortInfo[4]))
 
   return apiString < compareString
 }
 
-func(api ApiItemV2) ListString() string {
-  return api.ApiValue.Swagger.BasePath
+func(api ApiFilteredList) ListString() string {
+  return fmt.Sprintf("%s %s %s %s %s %s",
+  fmt.Sprintf("%s: %s\n", wski18n.T("Action"), api.SortInfo[0]),
+  fmt.Sprintf("  %s: %s\n", wski18n.T("API Name"), api.SortInfo[1]),
+  fmt.Sprintf("  %s: %s\n", wski18n.T("Base path"), api.SortInfo[2]),
+  fmt.Sprintf("  %s: %s\n", wski18n.T("Path"), api.SortInfo[3]),
+  fmt.Sprintf("  %s: %s\n", wski18n.T("Verb"), api.SortInfo[4]),
+  fmt.Sprintf("  %s: %s\n", wski18n.T("URL"), api.SortInfo[5]))
+}
+
+func(api ApiFilteredRow) Compare(s Sortable) bool{
+  as := s.(ApiFilteredRow)
+
+  apiString := strings.ToLower(fmt.Sprintf("%s%s%s",api.SortInfo[5],api.SortInfo[4],api.SortInfo[1]))
+  compareString := strings.ToLower(fmt.Sprintf("%s%s%s", as.SortInfo[5],as.SortInfo[4],as.SortInfo[1]))
+
+  return apiString < compareString
+}
+
+func(api ApiFilteredRow) ListString() string {
+  return fmt.Sprintf(api.SortInfo[6], api.SortInfo[0], api.SortInfo[1], api.SortInfo[2], api.SortInfo[3])
 }
 
 func (s *ApiService) List(apiListOptions *ApiListRequestOptions) (*ApiListResponse, *http.Response, error) {
