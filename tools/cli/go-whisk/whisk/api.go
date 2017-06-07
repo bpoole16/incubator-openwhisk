@@ -186,11 +186,23 @@ type ApiSwaggerOpXOpenWhiskV2 struct {
 }
 
 type ApiFilteredList struct {
-  SortInfo          []string
+    ActionName      string
+    ApiName         string
+    BasePath        string
+    RelPath         string
+    Verb            string
+    Url             string
 }
 
 type ApiFilteredRow struct {
-  SortInfo          []string
+  ActionName      string
+  ApiName         string
+  BasePath        string
+  RelPath         string
+  Verb            string
+  Url             string
+  FmtString       string
+
 }
 
 var ApiVerbs map[string]bool = map[string]bool {
@@ -215,33 +227,33 @@ const (
 func(api ApiFilteredList) Compare(s Sortable) bool{
   as := s.(ApiFilteredList)
 
-  apiString := strings.ToLower(fmt.Sprintf("%s%s%s",api.SortInfo[2],api.SortInfo[3],api.SortInfo[4]))
-  compareString := strings.ToLower(fmt.Sprintf("%s%s%s", as.SortInfo[2],as.SortInfo[3],as.SortInfo[4]))
+  apiString := strings.ToLower(fmt.Sprintf("%s%s%s",api.BasePath, api.RelPath, api.Verb))
+  compareString := strings.ToLower(fmt.Sprintf("%s%s%s", as.BasePath, as.RelPath, as.Verb))
 
   return apiString < compareString
 }
 
 func(api ApiFilteredList) ListString() string {
   return fmt.Sprintf("%s %s %s %s %s %s",
-  fmt.Sprintf("%s: %s\n", wski18n.T("Action"), api.SortInfo[0]),
-  fmt.Sprintf("  %s: %s\n", wski18n.T("API Name"), api.SortInfo[1]),
-  fmt.Sprintf("  %s: %s\n", wski18n.T("Base path"), api.SortInfo[2]),
-  fmt.Sprintf("  %s: %s\n", wski18n.T("Path"), api.SortInfo[3]),
-  fmt.Sprintf("  %s: %s\n", wski18n.T("Verb"), api.SortInfo[4]),
-  fmt.Sprintf("  %s: %s\n", wski18n.T("URL"), api.SortInfo[5]))
+  fmt.Sprintf("%s: %s\n", wski18n.T("Action"), api.ActionName),
+  fmt.Sprintf("  %s: %s\n", wski18n.T("API Name"), api.ApiName),
+  fmt.Sprintf("  %s: %s\n", wski18n.T("Base path"), api.BasePath),
+  fmt.Sprintf("  %s: %s\n", wski18n.T("Path"), api.RelPath),
+  fmt.Sprintf("  %s: %s\n", wski18n.T("Verb"), api.Verb),
+  fmt.Sprintf("  %s: %s\n", wski18n.T("URL"), api.Url))
 }
 
 func(api ApiFilteredRow) Compare(s Sortable) bool{
   as := s.(ApiFilteredRow)
 
-  apiString := strings.ToLower(fmt.Sprintf("%s%s%s",api.SortInfo[5],api.SortInfo[4],api.SortInfo[1]))
-  compareString := strings.ToLower(fmt.Sprintf("%s%s%s", as.SortInfo[5],as.SortInfo[4],as.SortInfo[1]))
+  apiString := strings.ToLower(fmt.Sprintf("%s%s%s",api.BasePath, api.RelPath, api.Verb))
+  compareString := strings.ToLower(fmt.Sprintf("%s%s%s", as.BasePath, as.RelPath, as.Verb))
 
   return apiString < compareString
 }
 
 func(api ApiFilteredRow) ListString() string {
-  return fmt.Sprintf(api.SortInfo[6], api.SortInfo[0], api.SortInfo[1], api.SortInfo[2], api.SortInfo[3])
+  return fmt.Sprintf(api.FmtString, api.ActionName, api.Verb, api.ApiName, api.Url)
 }
 
 func (s *ApiService) List(apiListOptions *ApiListRequestOptions) (*ApiListResponse, *http.Response, error) {

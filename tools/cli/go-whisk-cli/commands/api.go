@@ -1173,7 +1173,7 @@ var apiListCmdV2 = &cobra.Command{
                     }))
             sortFilteredList := make([]whisk.ApiFilteredList, len(retApiArray.Apis))
             for i:=0; i< len(retApiArray.Apis); i++ {
-                sortFilteredList[i].SortInfo = printFilteredListApiV2(retApiArray.Apis[i].ApiValue, apiPath, apiVerb)
+                sortFilteredList[i] = printFilteredListApiV2(retApiArray.Apis[i].ApiValue, apiPath, apiVerb)
             }
             printList(sortFilteredList)
         } else {
@@ -1191,7 +1191,7 @@ var apiListCmdV2 = &cobra.Command{
                 fmt.Printf(fmtString, "Action", "Verb", "API Name", "URL")
                 sortFilteredRow := make([]whisk.ApiFilteredRow, len(retApiArray.Apis))
                 for i:=0; i< len(retApiArray.Apis); i++ {
-                    sortFilteredRow[i].SortInfo = printFilteredListRowV2(retApiArray.Apis[i].ApiValue, apiPath, apiVerb, maxActionNameSize, maxApiNameSize)
+                    sortFilteredRow[i] = printFilteredListRowV2(retApiArray.Apis[i].ApiValue, apiPath, apiVerb, maxActionNameSize, maxApiNameSize)
                 }
                 printList(sortFilteredRow)
             } else {
@@ -1213,8 +1213,8 @@ var apiListCmdV2 = &cobra.Command{
  * and some filtering configuration.  For each API endpoint matching the filtering criteria, display
  * each endpoint's configuration - one line per configuration property (action name, verb, api name, api gw url)
  */
-func printFilteredListApiV2(resultApi *whisk.RetApiV2, apiPath string, apiVerb string) []string{
-    var infoArr []string
+func printFilteredListApiV2(resultApi *whisk.RetApiV2, apiPath string, apiVerb string) whisk.ApiFilteredList{
+    var infoArr whisk.ApiFilteredList
     baseUrl := strings.TrimSuffix(resultApi.BaseUrl, "/")
     apiName := resultApi.Swagger.Info.Title
     basePath := resultApi.Swagger.BasePath
@@ -1233,12 +1233,12 @@ func printFilteredListApiV2(resultApi *whisk.RetApiV2, apiPath string, apiVerb s
                         } else {
                             actionName = "/"+opv.XOpenWhisk.Namespace+"/"+opv.XOpenWhisk.ActionName
                         }
-                        infoArr = append(infoArr, actionName)
-                        infoArr = append(infoArr, apiName)
-                        infoArr = append(infoArr, basePath)
-                        infoArr = append(infoArr, path)
-                        infoArr = append(infoArr, op)
-                        infoArr = append(infoArr, baseUrl+path)
+                        infoArr.ActionName = actionName
+                        infoArr.ApiName = apiName
+                        infoArr.BasePath = basePath
+                        infoArr.RelPath = path
+                        infoArr.Verb = op
+                        infoArr.Url = baseUrl+path
                     }
                 }
             }
@@ -1254,8 +1254,8 @@ func printFilteredListApiV2(resultApi *whisk.RetApiV2, apiPath string, apiVerb s
  *
  * NOTE: Large action name and api name value will be truncated by their associated max size parameters.
  */
-func printFilteredListRowV2(resultApi *whisk.RetApiV2, apiPath string, apiVerb string, maxActionNameSize int, maxApiNameSize int) []string {
-    var infoArr []string
+func printFilteredListRowV2(resultApi *whisk.RetApiV2, apiPath string, apiVerb string, maxActionNameSize int, maxApiNameSize int) whisk.ApiFilteredRow {
+    var infoArr whisk.ApiFilteredRow
     baseUrl := strings.TrimSuffix(resultApi.BaseUrl, "/")
     apiName := resultApi.Swagger.Info.Title
     basePath := resultApi.Swagger.BasePath
@@ -1274,13 +1274,13 @@ func printFilteredListRowV2(resultApi *whisk.RetApiV2, apiPath string, apiVerb s
                         } else {
                             actionName = "/"+opv.XOpenWhisk.Namespace+"/"+opv.XOpenWhisk.ActionName
                         }
-                        infoArr = append(infoArr, actionName[0 : min(len(actionName), maxActionNameSize)])
-                        infoArr = append(infoArr, op)
-                        infoArr = append(infoArr, apiName[0 : min(len(apiName), maxApiNameSize)])
-                        infoArr = append(infoArr, baseUrl+path)
-                        infoArr = append(infoArr, path)
-                        infoArr = append(infoArr, basePath)
-                        infoArr = append(infoArr, fmtString)
+                        infoArr.ActionName =  actionName[0 : min(len(actionName), maxActionNameSize)]
+                        infoArr.Verb = op
+                        infoArr.ApiName = apiName[0 : min(len(apiName), maxApiNameSize)]
+                        infoArr.Url = baseUrl+path
+                        infoArr.RelPath = path
+                        infoArr.BasePath = basePath
+                        infoArr.FmtString = fmtString
                     }
                 }
             }
