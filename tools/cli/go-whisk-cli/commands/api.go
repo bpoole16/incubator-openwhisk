@@ -1089,6 +1089,7 @@ var apiListCmdV2 = &cobra.Command{
         var retApiArray *whisk.RetApiArrayV2
         var apiPath string
         var apiVerb string
+        var flagType string
 
 
         if whiskErr := checkArgs(args, 0, 3, "Api list",
@@ -1163,7 +1164,9 @@ var apiListCmdV2 = &cobra.Command{
             // Cast to a common type to allow for code to print out apilist response or apiget response
             retApiArray = (*whisk.RetApiArrayV2)(retApi)
         }
-
+        if flags.api.sortAction {
+          flagType = "a"
+        }
         // Display the APIs - applying any specified filtering
         if (flags.common.full) {
             fmt.Fprintf(color.Output,
@@ -1173,7 +1176,7 @@ var apiListCmdV2 = &cobra.Command{
                     }))
             sortFilteredList := make([]whisk.ApiFilteredList, len(retApiArray.Apis))
             for i:=0; i< len(retApiArray.Apis); i++ {
-                sortFilteredList[i] = printFilteredListApiV2(retApiArray.Apis[i].ApiValue, apiPath, apiVerb)
+                sortFilteredList[i] = printFilteredListApiV2(retApiArray.Apis[i].ApiValue, apiPath, apiVerb,flagType)
             }
             printList(sortFilteredList)
         } else {
@@ -1191,7 +1194,7 @@ var apiListCmdV2 = &cobra.Command{
                 fmt.Printf(fmtString, "Action", "Verb", "API Name", "URL")
                 sortFilteredRow := make([]whisk.ApiFilteredRow, len(retApiArray.Apis))
                 for i:=0; i< len(retApiArray.Apis); i++ {
-                    sortFilteredRow[i] = printFilteredListRowV2(retApiArray.Apis[i].ApiValue, apiPath, apiVerb, maxActionNameSize, maxApiNameSize)
+                    sortFilteredRow[i] = printFilteredListRowV2(retApiArray.Apis[i].ApiValue, apiPath, apiVerb, maxActionNameSize, maxApiNameSize,flagType)
                 }
                 printList(sortFilteredRow)
             } else {
@@ -1213,7 +1216,7 @@ var apiListCmdV2 = &cobra.Command{
  * and some filtering configuration.  For each API endpoint matching the filtering criteria, display
  * each endpoint's configuration - one line per configuration property (action name, verb, api name, api gw url)
  */
-func printFilteredListApiV2(resultApi *whisk.RetApiV2, apiPath string, apiVerb string) whisk.ApiFilteredList{
+func printFilteredListApiV2(resultApi *whisk.RetApiV2, apiPath string, apiVerb string, flagType string) whisk.ApiFilteredList{
     var infoArr whisk.ApiFilteredList
     baseUrl := strings.TrimSuffix(resultApi.BaseUrl, "/")
     apiName := resultApi.Swagger.Info.Title
@@ -1239,6 +1242,7 @@ func printFilteredListApiV2(resultApi *whisk.RetApiV2, apiPath string, apiVerb s
                         infoArr.RelPath = path
                         infoArr.Verb = op
                         infoArr.Url = baseUrl+path
+                        infoArr.Flag = flagType
                     }
                 }
             }
@@ -1254,7 +1258,7 @@ func printFilteredListApiV2(resultApi *whisk.RetApiV2, apiPath string, apiVerb s
  *
  * NOTE: Large action name and api name value will be truncated by their associated max size parameters.
  */
-func printFilteredListRowV2(resultApi *whisk.RetApiV2, apiPath string, apiVerb string, maxActionNameSize int, maxApiNameSize int) whisk.ApiFilteredRow {
+func printFilteredListRowV2(resultApi *whisk.RetApiV2, apiPath string, apiVerb string, maxActionNameSize int, maxApiNameSize int, flagType string) whisk.ApiFilteredRow {
     var infoArr whisk.ApiFilteredRow
     baseUrl := strings.TrimSuffix(resultApi.BaseUrl, "/")
     apiName := resultApi.Swagger.Info.Title
@@ -1281,6 +1285,7 @@ func printFilteredListRowV2(resultApi *whisk.RetApiV2, apiPath string, apiVerb s
                         infoArr.RelPath = path
                         infoArr.BasePath = basePath
                         infoArr.FmtString = fmtString
+                        infoArr.Flag = flagType
                     }
                 }
             }
@@ -1587,6 +1592,7 @@ func init() {
     apiListCmdV2.Flags().IntVarP(&flags.common.skip, "skip", "s", 0, wski18n.T("exclude the first `SKIP` number of actions from the result"))
     apiListCmdV2.Flags().IntVarP(&flags.common.limit, "limit", "l", 30, wski18n.T("only return `LIMIT` number of actions from the collection"))
     apiListCmdV2.Flags().BoolVarP(&flags.common.full, "full", "f", false, wski18n.T("display full description of each API"))
+    apiListCmdV2.Flags().BoolVarP(&flags.api.sortAction, "sort-action", "n", false, wski18n.T("sorts api list by action name first followed by base-path/rel-path/verb"))
     apiCmd.AddCommand(
         apiCreateCmdV2,
         apiGetCmdV2,

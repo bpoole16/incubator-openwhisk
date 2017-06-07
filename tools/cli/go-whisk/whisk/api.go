@@ -192,6 +192,7 @@ type ApiFilteredList struct {
     RelPath         string
     Verb            string
     Url             string
+    Flag            string
 }
 
 type ApiFilteredRow struct {
@@ -202,6 +203,7 @@ type ApiFilteredRow struct {
   Verb            string
   Url             string
   FmtString       string
+  Flag            string
 
 }
 
@@ -226,9 +228,18 @@ const (
 
 func(api ApiFilteredList) Compare(s Sortable) bool{
   as := s.(ApiFilteredList)
+  var apiString string
+  var compareString string
 
-  apiString := strings.ToLower(fmt.Sprintf("%s%s%s",api.BasePath, api.RelPath, api.Verb))
-  compareString := strings.ToLower(fmt.Sprintf("%s%s%s", as.BasePath, as.RelPath, as.Verb))
+  switch api.Flag {
+    case "a":
+        apiString = strings.ToLower(fmt.Sprintf("%s%s%s%s", api.ActionName, api.BasePath, api.RelPath, api.Verb))
+        compareString = strings.ToLower(fmt.Sprintf("%s%s%s%s", as.ActionName , as.BasePath, as.RelPath, as.Verb))
+    default:
+      fmt.Println("Default Sort Working")
+      apiString = strings.ToLower(fmt.Sprintf("%s%s%s",api.BasePath, api.RelPath, api.Verb))
+      compareString = strings.ToLower(fmt.Sprintf("%s%s%s", as.BasePath, as.RelPath, as.Verb))
+  }
 
   return apiString < compareString
 }
@@ -245,9 +256,17 @@ func(api ApiFilteredList) ListString() string {
 
 func(api ApiFilteredRow) Compare(s Sortable) bool{
   as := s.(ApiFilteredRow)
+  var apiString string
+  var compareString string
 
-  apiString := strings.ToLower(fmt.Sprintf("%s%s%s",api.BasePath, api.RelPath, api.Verb))
-  compareString := strings.ToLower(fmt.Sprintf("%s%s%s", as.BasePath, as.RelPath, as.Verb))
+  switch api.Flag {
+    case "a":
+      apiString = strings.ToLower(fmt.Sprintf("%s%s%s%s", api.ActionName, api.BasePath, api.RelPath, api.Verb))
+      compareString = strings.ToLower(fmt.Sprintf("%s%s%s%s", as.ActionName , as.BasePath, as.RelPath, as.Verb))
+    default:
+      apiString = strings.ToLower(fmt.Sprintf("%s%s%s",api.BasePath, api.RelPath, api.Verb))
+      compareString = strings.ToLower(fmt.Sprintf("%s%s%s", as.BasePath, as.RelPath, as.Verb))
+  }
 
   return apiString < compareString
 }
