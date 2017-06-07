@@ -1164,6 +1164,7 @@ var apiListCmdV2 = &cobra.Command{
             // Cast to a common type to allow for code to print out apilist response or apiget response
             retApiArray = (*whisk.RetApiArrayV2)(retApi)
         }
+        //Checks for any sort flags being passed
         if flags.api.sortAction {
           flagType = "a"
         }
@@ -1176,9 +1177,9 @@ var apiListCmdV2 = &cobra.Command{
                     }))
             sortFilteredList := make([]whisk.ApiFilteredList, len(retApiArray.Apis))
             for i:=0; i< len(retApiArray.Apis); i++ {
-                sortFilteredList[i] = printFilteredListApiV2(retApiArray.Apis[i].ApiValue, apiPath, apiVerb,flagType)
+                sortFilteredList[i] = printFilteredListApiV2(retApiArray.Apis[i].ApiValue, apiPath, apiVerb, flagType)
             }
-            printList(sortFilteredList)
+            printList(sortFilteredList) //Sends an array of structs that contains specifed variables that are not truncated
         } else {
             if (len(retApiArray.Apis) > 0) {
                 // Dynamically create the output format string based on the maximum size of the
@@ -1194,9 +1195,9 @@ var apiListCmdV2 = &cobra.Command{
                 fmt.Printf(fmtString, "Action", "Verb", "API Name", "URL")
                 sortFilteredRow := make([]whisk.ApiFilteredRow, len(retApiArray.Apis))
                 for i:=0; i< len(retApiArray.Apis); i++ {
-                    sortFilteredRow[i] = printFilteredListRowV2(retApiArray.Apis[i].ApiValue, apiPath, apiVerb, maxActionNameSize, maxApiNameSize,flagType)
+                    sortFilteredRow[i] = printFilteredListRowV2(retApiArray.Apis[i].ApiValue, apiPath, apiVerb, maxActionNameSize, maxApiNameSize, flagType)
                 }
-                printList(sortFilteredRow)
+                printList(sortFilteredRow) //Sends an array of structs that contains specified variables that are truncated
             } else {
                 fmt.Fprintf(color.Output,
                     wski18n.T("{{.ok}} APIs\n",
@@ -1215,6 +1216,7 @@ var apiListCmdV2 = &cobra.Command{
  * Takes an API object (containing one more more single basepath/relpath/operation triplets)
  * and some filtering configuration.  For each API endpoint matching the filtering criteria, display
  * each endpoint's configuration - one line per configuration property (action name, verb, api name, api gw url)
+ * Parses and initializes values for ApiFilteredList struct
  */
 func printFilteredListApiV2(resultApi *whisk.RetApiV2, apiPath string, apiVerb string, flagType string) whisk.ApiFilteredList{
     var infoArr whisk.ApiFilteredList
@@ -1255,6 +1257,7 @@ func printFilteredListApiV2(resultApi *whisk.RetApiV2, apiPath string, apiVerb s
  * Takes an API object (containing one more more single basepath/relpath/operation triplets)
  * and some filtering configuration.  For each API matching the filtering criteria, display the API
  * on a single line (action name, verb, api name, api gw url).
+ * Parses and initializes values for ApiFilteredRow struct
  *
  * NOTE: Large action name and api name value will be truncated by their associated max size parameters.
  */
@@ -1592,7 +1595,7 @@ func init() {
     apiListCmdV2.Flags().IntVarP(&flags.common.skip, "skip", "s", 0, wski18n.T("exclude the first `SKIP` number of actions from the result"))
     apiListCmdV2.Flags().IntVarP(&flags.common.limit, "limit", "l", 30, wski18n.T("only return `LIMIT` number of actions from the collection"))
     apiListCmdV2.Flags().BoolVarP(&flags.common.full, "full", "f", false, wski18n.T("display full description of each API"))
-    apiListCmdV2.Flags().BoolVarP(&flags.api.sortAction, "sort-action", "n", false, wski18n.T("sorts api list by action name first followed by base-path/rel-path/verb"))
+    apiListCmdV2.Flags().BoolVarP(&flags.api.sortAction, "sort-action", "n", false, wski18n.T("sort api list by action name first followed by base-path/rel-path/verb"))
     apiCmd.AddCommand(
         apiCreateCmdV2,
         apiGetCmdV2,
