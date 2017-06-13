@@ -286,10 +286,26 @@ var activationPollCmd = &cobra.Command{
     PreRunE: setupClientConfig,
     RunE: func(cmd *cobra.Command, args []string) error {
         var name string
+        var id string
         var pollSince int64 // Represents an instant in time (in milliseconds since Jan 1 1970)
+        var err error
+
+        if args, err = lastFlag(args); err != nil {  //Checks if any errors occured in lastFlag(args)
+          whisk.Debug(whisk.DbgError, "client.Activation.Poll failed: %s\n", err)
+          errStr := wski18n.T("Unable to get result for activation: {{.err}}",
+            map[string]interface{}{"err": err})
+          werr := whisk.MakeWskErrorFromWskError(errors.New(errStr), err, whisk.EXITCODE_ERR_GENERAL, whisk.DISPLAY_MSG, whisk.NO_DISPLAY_USAGE)
+          return werr
+        }
 
         if len(args) == 1 {
+          if _,_,err := client.Actions.Get(args[0]); err == nil{
             name = args[0]
+            whisk.Debug(whisk.DbgWarn, "\nA name was given and will be polled for %s\n",name )
+          } else {
+            id = args[0]
+            whisk.Debug(whisk.DbgWarn, "\nAn ID was given and will be polled for %s\n", id)
+          }
         } else if whiskErr := checkArgs(args, 0, 1, "Activation poll",
                 wski18n.T("An optional namespace is the only valid argument.")); whiskErr != nil {
             return whiskErr
@@ -344,7 +360,28 @@ var activationPollCmd = &cobra.Command{
                 whisk.Debug(whisk.DbgError, "time.ParseDuration(%s) failure: %s\n", durationStr, err)
             }
         }
-
+//POLL ID TOP
+        if id != "" {
+          whisk.Debug(whisk.DbgWarn,"Now polling for ID: %s\n", id)
+          fmt.Printf(wski18n.T("Polling for activation \n"))
+          whisk.Verbose("Polling starts from %s\n", time.Unix(pollSince/1000, 0))
+          for {
+            whisk.Verbose("Polling for activations since %s\n", time.Unix(pollSince/1000, 0))
+            activation,_,err:= client.Activations.Get(id)
+            if err !=nil {
+              whisk.Debug(whisk.DbgWarn, "client.Activations.Get() error: %s\n", err)
+              whisk.Debug(whisk.DbgWarn, "Ignoring client.Activations.Get failure; continuing to poll for activation\n")
+            } else if err == nil {
+                    fmt.Printf(
+                        wski18n.T("\nActivation: {{.name}} ({{.id}})\n",
+                            map[string]interface{}{"name": activation.Name, "id": activation.ActivationID}))
+                    printJSON(activation.Logs)
+                    break
+            }
+            time.Sleep(time.Second * 2)
+          }
+        } else {
+//POLL ID BOTTOM
         fmt.Printf(wski18n.T("Polling for activation logs\n"))
         whisk.Verbose("Polling starts from %s\n", time.Unix(pollSince/1000, 0))
         localStartTime := time.Now()
@@ -387,6 +424,7 @@ var activationPollCmd = &cobra.Command{
             }
             time.Sleep(time.Second * 2)
         }
+      }
         return nil
     },
 }
@@ -410,6 +448,7 @@ func init() {
     activationPollCmd.Flags().IntVar(&flags.activation.sinceMinutes, "since-minutes", 0, wski18n.T("start polling for activations `MINUTES` minutes ago"))
     activationPollCmd.Flags().IntVar(&flags.activation.sinceHours, "since-hours", 0, wski18n.T("start polling for activations `HOURS` hours ago"))
     activationPollCmd.Flags().IntVar(&flags.activation.sinceDays, "since-days", 0, wski18n.T("start polling for activations `DAYS` days ago"))
+    activationPollCmd.Flags().BoolVarP(&flags.activation.last, "last", "l", false, wski18n.T("retrieves the last activation"))
 
     activationCmd.AddCommand(
         activationListCmd,

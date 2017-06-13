@@ -106,7 +106,7 @@ Review the following steps and examples to create your first JavaScript action.
   }
   ```
 
-  6. To access the most recent activation record, activation results or activation logs, use the `--last` or `-l` flag. Run the following command to get your last activation result.
+6. To access the most recent activation record, activation results or activation logs, use the `--last` or `-l` flag. Run the following command to get your last activation result.
 
   ```
   wsk activation result --last
