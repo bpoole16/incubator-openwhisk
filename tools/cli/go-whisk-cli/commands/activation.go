@@ -107,7 +107,7 @@ var activationListCmd = &cobra.Command{
 }
 
 var activationGetCmd = &cobra.Command{
-    Use:   "get ACTIVATION_ID [FIELD_FILTER]",
+    Use:   "get (ACTIVATION_ID | --last) [FIELD_FILTER]",
     Short: wski18n.T("get activation"),
     SilenceUsage:   true,
     SilenceErrors:  true,
@@ -178,7 +178,7 @@ var activationGetCmd = &cobra.Command{
 }
 
 var activationLogsCmd = &cobra.Command{
-    Use:   "logs ACTIVATION_ID",
+    Use:   "logs (ACTIVATION_ID | --last)",
     Short: wski18n.T("get the logs of an activation"),
     SilenceUsage:   true,
     SilenceErrors:  true,
@@ -214,7 +214,7 @@ var activationLogsCmd = &cobra.Command{
 }
 
 var activationResultCmd = &cobra.Command{
-    Use:   "result ACTIVATION_ID",
+    Use:   "result (ACTIVATION_ID | --last)",
     Short: "get the result of an activation",
     SilenceUsage:   true,
     SilenceErrors:  true,
@@ -250,7 +250,7 @@ var activationResultCmd = &cobra.Command{
 }
 
 var activationPollCmd = &cobra.Command{
-    Use:   "poll [NAMESPACE]",
+    Use:   "poll [NAMESPACE | --last]",
     Short: wski18n.T("poll continuously for log messages from currently running actions"),
     SilenceUsage:   true,
     SilenceErrors:  true,
@@ -258,8 +258,8 @@ var activationPollCmd = &cobra.Command{
     RunE: func(cmd *cobra.Command, args []string) error {
         var name string
         var id string
-        var pollSince int64 // Represents an instant in time (in milliseconds since Jan 1 1970)
         var err error
+        var pollSince int64 // Represents an instant in time (in milliseconds since Jan 1 1970)
 
         if args, err = lastFlag(args); err != nil {  //Checks if any errors occured in lastFlag(args)
           whisk.Debug(whisk.DbgError, "client.Activation.Poll failed: %s\n", err)
@@ -269,19 +269,19 @@ var activationPollCmd = &cobra.Command{
           return werr
         }
 
-
         if len(args) == 1 {
-          _,_,errT := client.Triggers.Get(args[0])
-          _,_,errA := client.Actions.Get(args[0])
-          if  errA == nil || errT == nil{
+          whisk.Debug(whisk.DbgInfo, "\n\nArgs[0] is containing %s\n\n", args[0])
+          _,_,errT := client.Triggers.Get(args[0])  //checks if args is a trigger
+          _,_,errA := client.Actions.Get(args[0])   //Checks if args is a action
+          if  errA == nil || errT == nil{   // If an action or trigger name is given assign it to name
             name = args[0]
-            whisk.Debug(whisk.DbgWarn, "\nA name was given and will be polled for %s\n",name )
+            whisk.Debug(whisk.DbgInfo, "\nA name(%s) was given and will be polled for \n",name )
           } else {
-            id = args[0]
-            whisk.Debug(whisk.DbgWarn, "\nAn ID was given and will be polled for %s\n", id)
+              id = args[0]
+              whisk.Debug(whisk.DbgInfo, "\nAn ID(%s) was given and will be polled for \n", id)
           }
         } else if whiskErr := checkArgs(args, 0, 1, "Activation poll",
-                wski18n.T("An optional namespace is the only valid argument.")); whiskErr != nil {
+                wski18n.T("An optional namespace or ID are the only valid arguments.")); whiskErr != nil {
             return whiskErr
         }
 
@@ -338,10 +338,10 @@ var activationPollCmd = &cobra.Command{
         whisk.Verbose("Polling starts from %s\n", time.Unix(pollSince/1000, 0))
         localStartTime := time.Now()
         //Polling loop for ID
-        if id != "" { //Checks to see user passed id
-          whisk.Debug(whisk.DbgWarn,"Now polling for ID: %s\n", id)
-          for {
-            if flags.activation.exit > 0 { //Checks for exit flag
+        if id != "" {   //Checks to see user passed an ID
+          whisk.Debug(whisk.DbgInfo,"Now polling for ID: %s\n", id)
+          for { //Polling begins
+            if flags.activation.exit > 0 {    //Checks for exit flag
                 localDuration := time.Since(localStartTime)
                 if int(localDuration.Seconds()) > flags.activation.exit {
                     whisk.Debug(whisk.DbgInfo, "Poll time (%d seconds) expired; polling loop stopped \n", flags.activation.exit)
@@ -349,11 +349,11 @@ var activationPollCmd = &cobra.Command{
                 }
             }
             whisk.Verbose("Polling for activations since %s\n", time.Unix(pollSince/1000, 0))
-            activation,_,err:= client.Activations.Get(id)
+            activation,_,err:= client.Activations.Get(id)   //Checking for ID
             if err !=nil {
               whisk.Debug(whisk.DbgWarn, "client.Activations.Get() error: %s\n", err)
-              whisk.Debug(whisk.DbgWarn, "Ignoring client.Activations.Get failure; continuing to poll for activation\n")
-            } else if err == nil {
+              whisk.Debug(whisk.DbgWarn, "Ignoring client.Activations.Get failure; continuing to poll for activation ID\n")
+            } else if err == nil {    //Found ID, displays information, and exits polling
                     fmt.Printf(
                         wski18n.T("\nActivation: {{.name}} ({{.id}})\n",
                             map[string]interface{}{"name": activation.Name, "id": activation.ActivationID}))
@@ -412,26 +412,33 @@ var activationPollCmd = &cobra.Command{
 func lastFlag(args []string) ([]string, error) {
   //Checks to see if there is an ID sent with the --last
   //If an ID is given with --last then an error will be thrown
-  if flags.activation.last && len(args) == 0  {
+  if  flags.activation.last &&  len(args) < 3{
     options := &whisk.ActivationListOptions {
       Limit: 1,
       Skip: 0,
     }
-    activations, _, err := client.Activations.List(options)
-    if err != nil {  //Checks Activations.List for errors when retrieving latest activaiton
+    activations,_, err := client.Activations.List(options)
+    if err != nil {   //Checks Activations.List for errors when retrieving latest activaiton
       whisk.Debug(whisk.DbgError, "client.Activations.List() error for flag --last: %s\n", err)
       return args, err
     }
-    if len(activations) == 0 {  //Checks to to see if there are activations
+    if len(activations) == 0 {    //Checks to to see if there are activations available
       whiskErr := whisk.MakeWskError(errors.New("Activation list is empty"), whisk.EXITCODE_ERR_GENERAL, whisk.DISPLAY_MSG, whisk.DISPLAY_USAGE)
       return args, whiskErr
     } else {
-      whisk.Debug(whisk.DbgInfo, "Appending most recent activation ID into args\n")
-      args = append(args, activations[0].ActivationID)
-    }
-  } else if flags.activation.last && len(args) == 1 {  //Checks conflict between ID and --last
-      whiskErr := whisk.MakeWskError(errors.New("Can't use given ID with --last"), whisk.EXITCODE_ERR_GENERAL, whisk.DISPLAY_MSG, whisk.DISPLAY_USAGE)
-      return args, whiskErr
+      if len(args) == 0{
+        whisk.Debug(whisk.DbgInfo, "Appending most recent activation ID into args\n")
+        args = append(args, activations[0].ActivationID)
+      } else if _,_,err := client.Activations.Get(args[0]); len(args) == 1 && err != nil{   //Checks to see if filter field is given and not ID
+          whisk.Debug(whisk.DbgInfo, "Appending most recent activation ID into args\n")
+          args = append(args, activations[0].ActivationID)
+          whisk.Debug(whisk.DbgInfo, "Allocating appended ID to correct position in args\n")
+          args[0], args[1] = args[1], args[0]   //IDs should be located at args[0], if a filter field is given it has to be moved to args[0]
+      } else if  _,_,err := client.Activations.Get(args[0]);  len(args) == 1 && err == nil {    //Checks conflict between ID and --last
+          whiskErr := whisk.MakeWskError(errors.New("When specifying an activation ID, do not use the --last flag"), whisk.EXITCODE_ERR_GENERAL, whisk.DISPLAY_MSG, whisk.DISPLAY_USAGE)
+          return args, whiskErr
+        }
+      }
   }
   return args, nil
 }
