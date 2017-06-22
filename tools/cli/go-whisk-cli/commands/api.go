@@ -40,6 +40,8 @@ const (
 
     formatOptionYaml = "yaml"
     formatOptionJson = "json"
+
+    sortActionFlag = "a"
 )
 
 //////////////
@@ -299,7 +301,7 @@ var apiDeleteCmd = &cobra.Command{
         if err != nil {
             whisk.Debug(whisk.DbgError, "client.Apis.Delete(%#v, %#v) error: %s\n", apiDeleteReq, apiDeleteReqOptions, err)
             errMsg := wski18n.T("Unable to delete API: {{.err}}", map[string]interface{}{"err": err})
-            whiskErr := whisk.MakeWskErrorFromWskError(errors.New(errMsg), err, whisk.EXITCODE_ERR_GENERAL,
+            whiskErr := whisk.MakeWskError(errors.New(errMsg), whisk.EXITCODE_ERR_GENERAL,
                 whisk.DISPLAY_MSG, whisk.NO_DISPLAY_USAGE)
             return whiskErr
         }
@@ -409,9 +411,9 @@ var apiListCmd = &cobra.Command{
             // Cast to a common type to allow for code to print out apilist response or apiget response
             retApiArray = (*whisk.RetApiArray)(retApi)
         }
-        //Checks for any sort flags being passed
+        // Checks for any sort flags being passed
         if flags.api.sortAction {
-          flagType = "a"
+          flagType = sortActionFlag
         }
         // Display the APIs - applying any specified filtering
         if (flags.common.full) {
@@ -443,7 +445,7 @@ var apiListCmd = &cobra.Command{
                     }))
             fmt.Printf(fmtString, "Action", "Verb", "API Name", "URL")
             for i:=0; i<len(retApiArray.Apis); i++ {
-              sortFilteredRow = append(sortFilteredRow, printFilteredListRow(retApiArray.Apis[i].ApiValue, (*whisk.ApiOptions)(apiGetReqOptions), maxActionNameSize, maxApiNameSize,flagType)...)
+                sortFilteredRow = append(sortFilteredRow, printFilteredListRow(retApiArray.Apis[i].ApiValue, (*whisk.ApiOptions)(apiGetReqOptions), maxActionNameSize, maxApiNameSize,flagType)...)
             }
             if (len(sortFilteredRow) != 0) {
                 whisk.Debug(whisk.DbgInfo, "Sending sortFilteredRow to be printed")
@@ -1196,7 +1198,7 @@ var apiListCmdV2 = &cobra.Command{
         }
         //Checks for any sort flags being passed
         if flags.api.sortAction {
-          flagType = "a"
+          flagType = sortActionFlag
         }
         // Display the APIs - applying any specified filtering
         if (flags.common.full) {

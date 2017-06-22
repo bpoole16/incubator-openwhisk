@@ -643,7 +643,7 @@ To avoid the cold-start delay, you can compile your Swift file into a binary and
 
 - Copy the source code and prepare to build it.
   ```
-  cp /owexec/hello.swift /swift3Action/spm-build/main.swift 
+  cp /owexec/hello.swift /swift3Action/spm-build/main.swift
   ```
   ```
   cat /swift3Action/epilogue.swift >> /swift3Action/spm-build/main.swift
@@ -698,17 +698,22 @@ and so you should include them in your own `Package.swift`.
   exit
   ```
 
+<<<<<<< HEAD
   This has created hello.zip in the same directory as hello.swift. 
 
 - Upload it to OpenWhisk with the action name helloSwifty:
+=======
+This has created hello.zip in the same directory as hello.swift.
+-Upload it to OpenWhisk with the action name helloSwifty:
+>>>>>>> Updates based on comments
   ```
   wsk action update helloSwiftly hello.zip --kind swift:3.1.1
   ```
 
-- To check how much faster it is, run 
+- To check how much faster it is, run
   ```
   wsk action invoke helloSwiftly --blocking
-  ``` 
+  ```
 
 
 The time it took for the action to run is in the "duration" property and compare to the time it takes to run with a compilation step in the hello action.
@@ -939,13 +944,13 @@ You can list all the actions that you have created using:
 wsk action list
 ```
 
-By default, listed actions will be sorted alphabetically, first by namespaces, then [packages](./packages.md), and finally by action name. To filter your list of actions to just the those within a specific pacakge, you can use: 
+By default, listed actions will be sorted alphabetically, first by namespaces, then [packages](./packages.md), and finally by action name. To filter your list of actions to just the those within a specific pacakge, you can use:
 
 ```
 wsk action list [PACKAGE NAME]
 ```
 
-Side Note: Listing works the same way for actions as it does for [packages](./packages.md), [APIs](./apigateway.md), [triggers and rules](./triggers_rules.md). 
+*Note:* Listing works the same way for actions as it does for [packages](./packages.md), [APIs](./apigateway.md), [triggers and rules](./triggers_rules.md). 
 
 ## Deleting actions
 

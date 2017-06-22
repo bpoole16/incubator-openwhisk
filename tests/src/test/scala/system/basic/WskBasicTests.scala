@@ -51,7 +51,7 @@ class WskBasicTests
     it should "return a list of alphabetized packages" in withAssetCleaner(wskprops) {
     (wp, assetHelper) =>
 
-        //Declare 4 actions, create them out of alphabetical order
+        // Declare 4 actions, create them out of alphabetical order
         val nameA = "activationBasicTestingA1"
         val nameB = "activationBasicTestingA2"
         val nameC = "activationBasicTestingB1"
@@ -69,11 +69,11 @@ class WskBasicTests
         }
 
         val original = wsk.pkg.list().stdout
-        //Create list with action names in correct order
+        // Create list with action names in correct order
         val scalaSorted = List(nameA, nameB, nameC)
-        //Filter out everything not previously created
+        // Filter out everything not previously created
         val regex = "activationBasicTesting[A,B][1,2]".r
-        //Retrieve action names into list as found in original
+        // Retrieve action names into list as found in original
         val list  = (regex.findAllMatchIn(original)).toList
         scalaSorted.toString shouldEqual list.toString
     }
@@ -91,7 +91,7 @@ class WskBasicTests
         assetHelper.withCleaner(wsk.action, actionName) {
             (action, name) => action.create(name, defaultAction)
         }
-        //Declare 4 actions, create them out of alphabetical order
+        // Declare 4 actions, create them out of alphabetical order
         val nameA = "activationBasicTestingA1"
         val nameB = "activationBasicTestingA2"
         val nameC = "activationBasicTestingB1"
@@ -109,18 +109,18 @@ class WskBasicTests
         }
 
         val original = wsk.rule.list().stdout
-        //Create list with action names in correct order
+        // Create list with action names in correct order
         val scalaSorted = List(nameA, nameB, nameC)
-        //Filter out everything not previously created
+        // Filter out everything not previously created
         val regex = "activationBasicTesting[A,B][1,2]".r
-        //Retrieve action names into list as found in original
+        // Retrieve action names into list as found in original
         val list  = (regex.findAllMatchIn(original)).toList
         scalaSorted.toString shouldEqual list.toString
     }
 
     it should "return a list of alphabetized actions" in withAssetCleaner(wskprops) {
     (wp, assetHelper) =>
-        //Declare 4 actions, create them out of alphabetical order
+        // Declare 4 actions, create them out of alphabetical order
         val nameA = "activationBasicTestingA1"
         val nameB = "activationBasicTestingA2"
         val nameC = "activationBasicTestingB1"
@@ -134,18 +134,18 @@ class WskBasicTests
             (action, _) => action.create(nameA, Some(TestUtils.getTestActionFilename("empty.js")))
         }
         val original = wsk.action.list().stdout
-        //Create list with action names in correct order
+        // Create list with action names in correct order
         val scalaSorted = List(nameA, nameB, nameC)
-        //Filter out everything not previously created
+        // Filter out everything not previously created
         val regex = "activationBasicTesting[A,B][1,2]".r
-        //Retrieve action names into list as found in original
+        // Retrieve action names into list as found in original
         val list  = (regex.findAllMatchIn(original)).toList
         scalaSorted.toString shouldEqual list.toString
 }
 
 it should "return a list of alphabetized triggers" in withAssetCleaner(wskprops) {
 (wp, assetHelper) =>
-    //Declare 4 actions, create them out of alphabetical order
+    // Declare 4 actions, create them out of alphabetical order
     val nameA = "activationBasicTestingA1"
     val nameB = "activationBasicTestingA2"
     val nameC = "activationBasicTestingB1"
@@ -159,11 +159,11 @@ it should "return a list of alphabetized triggers" in withAssetCleaner(wskprops)
         (trigger, _) => trigger.create(nameA)
     }
     val original = wsk.trigger.list().stdout
-    //Create list with action names in correct order
+    // Create list with action names in correct order
     val scalaSorted = List(nameA, nameB, nameC)
-    //Filter out everything not previously created
+    // Filter out everything not previously created
     val regex = "activationBasicTesting[A,B][1,2]".r
-    //Retrieve action names into list as found in original
+    // Retrieve action names into list as found in original
     val list  = (regex.findAllMatchIn(original)).toList
     scalaSorted.toString shouldEqual list.toString
 }

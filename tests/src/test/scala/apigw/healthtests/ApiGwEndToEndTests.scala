@@ -87,34 +87,28 @@ class ApiGwEndToEndTests
         try {
             //Create Actions for apiexperimentals
             val file = TestUtils.getTestActionFilename(s"echo-web-http.js")
-            println("Create Action: " + actionName1)
             assetHelper.withCleaner(wsk.action, actionName1) {
                 (action, name) => action.create(name, artifact = Some(file), expectedExitCode = SUCCESS_EXIT, web = Some("true"))
             }
-            println("Create Action: " + actionName2)
             assetHelper.withCleaner(wsk.action, actionName2) {
                 (action, name) => action.create(name, artifact = Some(file), expectedExitCode = SUCCESS_EXIT, web = Some("true"))
             }
-            println("Create Action: " + actionName3)
             assetHelper.withCleaner(wsk.action, actionName3) {
                 (action, name) => action.create(name, artifact = Some(file), expectedExitCode = SUCCESS_EXIT, web = Some("true"))
             }
-            //Create apiexperimentals
-            println("Create api-experimental: Base Path " + base2)
+            // Create apiexperimentals
             wsk.apiexperimental.create(
               basepath = Some(base2),
               relpath = Some("/relPath1"),
               operation = Some("get"),
               action = Some(actionName2)
             )
-            println("Create api-experimental: Base Path " + base1)
             wsk.apiexperimental.create(
               basepath = Some(base1),
               relpath = Some("/relPath2"),
               operation = Some("delete"),
               action = Some(actionName1)
             )
-            println("Create api-experimental: Base Path " + base3)
             wsk.apiexperimental.create(
               basepath = Some(base3),
               relpath = Some("/relPath3"),
@@ -131,11 +125,8 @@ class ApiGwEndToEndTests
             scalaSorted.toString shouldEqual listFull.toString
         } finally {
             //Clean up apiexperimentals
-            println("Delete api-experimental: Base Path " + base1)
             wsk.apiexperimental.delete(base1, expectedExitCode = DONTCARE_EXIT)
-            println("Delete api-experimental: Base Path " + base2)
             wsk.apiexperimental.delete(base2, expectedExitCode = DONTCARE_EXIT)
-            println("Delete api-experimental: Base Path " + base3)
             wsk.apiexperimental.delete(base3, expectedExitCode = DONTCARE_EXIT)
         }
     }
@@ -151,36 +142,30 @@ class ApiGwEndToEndTests
         val base3 = "/BaseTestPath3"
 
         try {
-            //Create Actions for api-experimentals
+            // Create Actions for api-experimentals
             val file = TestUtils.getTestActionFilename(s"echo-web-http.js")
-            println("Create Action: " + actionName1)
             assetHelper.withCleaner(wsk.action, actionName1) {
                 (action, name) => action.create(name, artifact = Some(file), expectedExitCode = SUCCESS_EXIT, web = Some("true"))
             }
-            println("Create Action: " + actionName2)
             assetHelper.withCleaner(wsk.action, actionName2) {
                 (action, name) => action.create(name, artifact = Some(file), expectedExitCode = SUCCESS_EXIT, web = Some("true"))
             }
-            println("Create Action: " + actionName3)
             assetHelper.withCleaner(wsk.action, actionName3) {
                 (action, name) => action.create(name, artifact = Some(file), expectedExitCode = SUCCESS_EXIT, web = Some("true"))
             }
-            //Create api-experimentals
-            println("Create api-experimental: Base Path " + base2)
+            // Create api-experimentals
             wsk.apiexperimental.create(
               basepath = Some(base2),
               relpath = Some("/relPath1"),
               operation = Some("get"),
               action = Some(actionName2)
             )
-            println("Create apiexperimental: Base Path " + base1)
             wsk.apiexperimental.create(
               basepath = Some(base1),
               relpath = Some("/relPath2"),
               operation = Some("delete"),
               action = Some(actionName1)
             )
-            println("Create apiexperimental: Base Path " + base3)
             wsk.apiexperimental.create(
               basepath = Some(base3),
               relpath = Some("/relPath3"),
@@ -196,12 +181,9 @@ class ApiGwEndToEndTests
             scalaSorted.toString shouldEqual list.toString
             scalaSorted.toString shouldEqual listFull.toString
         } finally {
-            //Clean up apiexperimentals
-            println("Delete apiexperimental: Base Path " + base1)
+            // Clean up apiexperimentals
             wsk.apiexperimental.delete(base1, expectedExitCode = DONTCARE_EXIT)
-            println("Delete apiexperimental: Base Path " + base2)
             wsk.apiexperimental.delete(base2, expectedExitCode = DONTCARE_EXIT)
-            println("Delete apiexperimental: Base Path " + base3)
             wsk.apiexperimental.delete(base3, expectedExitCode = DONTCARE_EXIT)
         }
     }
@@ -287,22 +269,18 @@ class ApiGwEndToEndTests
         val base3 = "/BaseTestPath3"
 
         try {
-            //Create Actions for Apis
+            // Create Actions for Apis
             val file = TestUtils.getTestActionFilename(s"echo-web-http.js")
-            println("Create Action: " + actionName1)
             assetHelper.withCleaner(wsk.action, actionName1) {
                 (action, name) => action.create(name, artifact = Some(file), expectedExitCode = SUCCESS_EXIT, web = Some("true"))
             }
-            println("Create Action: " + actionName2)
             assetHelper.withCleaner(wsk.action, actionName2) {
                 (action, name) => action.create(name, artifact = Some(file), expectedExitCode = SUCCESS_EXIT, web = Some("true"))
             }
-            println("Create Action: " + actionName3)
             assetHelper.withCleaner(wsk.action, actionName3) {
                 (action, name) => action.create(name, artifact = Some(file), expectedExitCode = SUCCESS_EXIT, web = Some("true"))
             }
-            //Create Apis
-            println("Create API: Base Path " + base2)
+            // Create Apis
             wsk.api.create(
               basepath = Some(base2),
               relpath = Some("/relPath1"),
@@ -310,7 +288,6 @@ class ApiGwEndToEndTests
               action = Some(actionName2),
               cliCfgFile = Some(cliWskPropsFile.getCanonicalPath())
             )
-            println("Create API: Base Path " + base1)
             wsk.api.create(
               basepath = Some(base1),
               relpath = Some("/relPath2"),
@@ -318,7 +295,6 @@ class ApiGwEndToEndTests
               action = Some(actionName1),
               cliCfgFile = Some(cliWskPropsFile.getCanonicalPath())
             )
-            println("Create API: Base Path " + base3)
             wsk.api.create(
               basepath = Some(base3),
               relpath = Some("/relPath3"),
@@ -335,12 +311,9 @@ class ApiGwEndToEndTests
             scalaSorted.toString shouldEqual list.toString
             scalaSorted.toString shouldEqual listFull.toString
         } finally {
-            //Clean up Apis
-            println("Delete API: Base Path " + base1)
+            // Clean up Apis
             wsk.api.delete(base1, expectedExitCode = DONTCARE_EXIT, cliCfgFile = Some(cliWskPropsFile.getCanonicalPath()))
-            println("Delete API: Base Path " + base2)
             wsk.api.delete(base2, expectedExitCode = DONTCARE_EXIT, cliCfgFile = Some(cliWskPropsFile.getCanonicalPath()))
-            println("Delete API: Base Path " + base3)
             wsk.api.delete(base3, expectedExitCode = DONTCARE_EXIT, cliCfgFile = Some(cliWskPropsFile.getCanonicalPath()))
         }
     }
@@ -356,22 +329,18 @@ class ApiGwEndToEndTests
         val base3 = "/BaseTestPath3"
 
         try {
-            //Create Actions for Apis
+            // Create Actions for Apis
             val file = TestUtils.getTestActionFilename(s"echo-web-http.js")
-            println("Create Action: " + actionName1)
             assetHelper.withCleaner(wsk.action, actionName1) {
                 (action, name) => action.create(name, artifact = Some(file), expectedExitCode = SUCCESS_EXIT, web = Some("true"))
             }
-            println("Create Action: " + actionName2)
             assetHelper.withCleaner(wsk.action, actionName2) {
                 (action, name) => action.create(name, artifact = Some(file), expectedExitCode = SUCCESS_EXIT, web = Some("true"))
             }
-            println("Create Action: " + actionName3)
             assetHelper.withCleaner(wsk.action, actionName3) {
                 (action, name) => action.create(name, artifact = Some(file), expectedExitCode = SUCCESS_EXIT, web = Some("true"))
             }
-            //Create Apis
-            println("Create API: Base Path " + base2)
+            // Create Apis
             wsk.api.create(
               basepath = Some(base2),
               relpath = Some("/relPath1"),
@@ -379,7 +348,6 @@ class ApiGwEndToEndTests
               action = Some(actionName2),
               cliCfgFile = Some(cliWskPropsFile.getCanonicalPath())
             )
-            println("Create API: Base Path " + base1)
             wsk.api.create(
               basepath = Some(base1),
               relpath = Some("/relPath2"),
@@ -387,7 +355,6 @@ class ApiGwEndToEndTests
               action = Some(actionName1),
               cliCfgFile = Some(cliWskPropsFile.getCanonicalPath())
             )
-            println("Create API: Base Path " + base3)
             wsk.api.create(
               basepath = Some(base3),
               relpath = Some("/relPath3"),
@@ -406,12 +373,9 @@ class ApiGwEndToEndTests
             scalaSorted.toString shouldEqual list.toString
             scalaSorted.toString shouldEqual listFull.toString
         } finally {
-            //Clean up Apis
-            println("Delete API: Base Path " + base1)
+            // Clean up Apis
             wsk.api.delete(base1, expectedExitCode = DONTCARE_EXIT, cliCfgFile = Some(cliWskPropsFile.getCanonicalPath()))
-            println("Delete API: Base Path " + base2)
             wsk.api.delete(base2, expectedExitCode = DONTCARE_EXIT, cliCfgFile = Some(cliWskPropsFile.getCanonicalPath()))
-            println("Delete API: Base Path " + base3)
             wsk.api.delete(base3, expectedExitCode = DONTCARE_EXIT, cliCfgFile = Some(cliWskPropsFile.getCanonicalPath()))
         }
     }

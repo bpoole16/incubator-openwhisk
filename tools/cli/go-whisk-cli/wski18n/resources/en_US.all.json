@@ -1364,8 +1364,8 @@
     "translation": "display full description of each API"
   },
   {
-    "id": "sort api list by action name first followed by base-path/rel-path/verb",
-    "translation": "sort api list by action name first followed by base-path/rel-path/verb."
+    "id": "sort API list by action name first followed by base-path/rel-path/verb",
+    "translation": "sort API list by action name first followed by base-path/rel-path/verb."
   },
   {
     "id": "Request accepted, but processing not completed yet.",

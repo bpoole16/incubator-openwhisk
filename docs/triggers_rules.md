@@ -56,7 +56,7 @@ As an example, create a trigger to send user location updates, and manually fire
   ok: created trigger locationUpdate
   ```
 
-2. Check that you created the trigger by listing the set of triggers. (Side note: triggers and rules will be listed alphabetically when using the `list` command.)
+2. Check that you created the trigger by listing the set of triggers.
 
   ```
   $ wsk trigger list

@@ -22,17 +22,17 @@ Several packages are registered with OpenWhisk. You can get a list of packages i
   ```
   ```
   packages		
-  /whisk.system/alarms													 shared
-  /whisk.system/cloudant   												 shared
-  /whisk.system/github 													 shared
-  /whisk.system/pushnotifications										 shared
-  /whisk.system/samples  												 shared
-  /whisk.system/slack													 shared
-  /whisk.system/system 													 shared
-  /whisk.system/utils													 shared
-  /whisk.system/watson													 shared
-  /whisk.system/weather													 shared
-  /whisk.system/websocket 												 shared
+  /whisk.system/alarms					shared
+  /whisk.system/cloudant				shared
+  /whisk.system/github					shared
+  /whisk.system/pushnotifications			shared
+  /whisk.system/samples					shared
+  /whisk.system/slack					shared
+  /whisk.system/system					shared
+  /whisk.system/utils					shared
+  /whisk.system/watson					shared
+  /whisk.system/weather					shared
+  /whisk.system/websocket				shared
   ```
 
 2. Get a list of entities in the `/whisk.system/cloudant` package.

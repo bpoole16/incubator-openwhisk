@@ -73,7 +73,6 @@ func(trigger Trigger) ListString() string {
 
     return fmt.Sprintf("%-70s %s\n", fmt.Sprintf("/%s/%s", trigger.Namespace,
         trigger.Name), publishState)
-
 }
 
 func (s *TriggerService) List(options *TriggerListOptions) ([]Trigger, *http.Response, error) {

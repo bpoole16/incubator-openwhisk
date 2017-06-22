@@ -341,8 +341,8 @@ func printSummary(collection interface{}) {
     case *whisk.Activation:
     }
 }
-//Used to print Action, Tigger, Package, and Rule lists
-//Param: Takes in a array of Sortable interface
+// Used to print Action, Tigger, Package, and Rule lists
+// Param: Takes in a array of Sortable interface
 func printCommandsList(commands []whisk.Sortable, printName bool) {
     commandName := reflect.TypeOf(commands[0]).Name()
 
