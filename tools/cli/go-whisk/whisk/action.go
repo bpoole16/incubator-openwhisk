@@ -78,11 +78,11 @@ func(action Action) Compare(sortable Sortable) bool{
 }
 
 /*
- *  ListString() returns a compound string of required parameters for printing
+ *  InfoToString() returns a compound string of required parameters for printing
  *    from CLI command `wsk action list`.
  *  ***Method of type Sortable***
  */
-func(action Action) ListString() string{
+func(action Action) InfoToString() string{
   publishState := wski18n.T("private")
   var kind string
 

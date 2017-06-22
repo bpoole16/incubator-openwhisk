@@ -388,12 +388,7 @@ var ruleListCmd = &cobra.Command{
             werr := whisk.MakeWskErrorFromWskError(errors.New(errStr), err, whisk.EXITCODE_ERR_GENERAL, whisk.DISPLAY_MSG, whisk.NO_DISPLAY_USAGE)
             return werr
         }
-        if (len(rules) != 0) {
-            whisk.Debug(whisk.DbgInfo, "Sending rules to be printed")
-            printList(rules)
-        } else {
-            whisk.Debug(whisk.DbgInfo, "No rules found in rule list")
-        }
+        printList(rules)
         return nil
     },
 }

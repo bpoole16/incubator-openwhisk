@@ -185,6 +185,7 @@ type ApiSwaggerOpXOpenWhiskV2 struct {
     ApiUrl          string    `json:"url"`
 }
 
+// Used for printing individual APIs in non-truncated form
 type ApiFilteredList struct {
     ActionName      string
     ApiName         string
@@ -195,16 +196,16 @@ type ApiFilteredList struct {
     Flag            string
 }
 
+// Used for printing individual APIs in truncated form
 type ApiFilteredRow struct {
-  ActionName      string
-  ApiName         string
-  BasePath        string
-  RelPath         string
-  Verb            string
-  Url             string
-  FmtString       string
-  Flag            string
-
+    ActionName      string
+    ApiName         string
+    BasePath        string
+    RelPath         string
+    Verb            string
+    Url             string
+    FmtString       string
+    Flag            string
 }
 
 var ApiVerbs map[string]bool = map[string]bool {
@@ -220,6 +221,7 @@ var ApiVerbs map[string]bool = map[string]bool {
 const (
     Overwrite = true
     DoNotOverwrite = false
+    sortActionFlag = "a"
 )
 
 ////////////////////
@@ -241,7 +243,7 @@ func(api ApiFilteredList) Compare(sortable Sortable) bool{
 
   // Check for flag to build proper comparison strings
   switch api.Flag {
-  case "a":
+  case sortActionFlag:
       apiString = strings.ToLower(fmt.Sprintf("%s%s%s%s", api.ActionName,
           api.BasePath, api.RelPath, api.Verb))
       compareString = strings.ToLower(fmt.Sprintf("%s%s%s%s", apiToCompare.ActionName,
@@ -257,11 +259,11 @@ func(api ApiFilteredList) Compare(sortable Sortable) bool{
 }
 
 /*
- *  ListString() returns a compound string of required parameters for printing
+ *  InfoToString() returns a compound string of required parameters for printing
  *    from CLI command `wsk api list` or `wsk api-experimental list`.
  *  ***Method of type Sortable***
  */
-func(api ApiFilteredList) ListString() string {
+func(api ApiFilteredList) InfoToString() string {
     return fmt.Sprintf("%s %s %s %s %s %s",
     fmt.Sprintf("%s: %s\n", wski18n.T("Action"), api.ActionName),
     fmt.Sprintf("  %s: %s\n", wski18n.T("API Name"), api.ApiName),
@@ -286,7 +288,7 @@ func(api ApiFilteredRow) Compare(sortable Sortable) bool{
 
   // Check for flag to build proper comparison strings
   switch api.Flag {
-  case "a":
+  case sortActionFlag:
       apiString = strings.ToLower(fmt.Sprintf("%s%s%s%s", api.ActionName, api.BasePath,
           api.RelPath, api.Verb))
       compareString = strings.ToLower(fmt.Sprintf("%s%s%s%s", apiToCompare.ActionName,
@@ -302,11 +304,11 @@ func(api ApiFilteredRow) Compare(sortable Sortable) bool{
 }
 
 /*
- *  ListString() returns a compound string of required parameters for printing
+ *  InfoToString() returns a compound string of required parameters for printing
  *    from CLI command `wsk api list -f` or `wsk api-experimental list -f`.
  *  ***Method of type Sortable***
  */
-func(api ApiFilteredRow) ListString() string {
+func(api ApiFilteredRow) InfoToString() string {
   return fmt.Sprintf(api.FmtString, api.ActionName, api.Verb, api.ApiName, api.Url)
 }
 

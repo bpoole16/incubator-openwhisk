@@ -313,12 +313,7 @@ var actionListCmd = &cobra.Command{
             return actionListError(qualifiedName.entityName, options, err)
         }
 
-        if (len(actions) != 0) {
-            whisk.Debug(whisk.DbgInfo, "Sending actions to be printed")
-            printList(actions)
-        } else {
-            whisk.Debug(whisk.DbgInfo, "No actions found in action list")
-        }
+        printList(actions)
         return nil
     },
 }

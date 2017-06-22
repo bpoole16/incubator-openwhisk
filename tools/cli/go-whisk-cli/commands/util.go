@@ -249,15 +249,15 @@ func isValidJSON(value string) (bool) {
 var boldString = color.New(color.Bold).SprintFunc()
 
 type SortCmds []whisk.Sortable
-//Uses Go builtin sort to sort commands based on their compare methods
-//Param: Takes in a array of Sortable interfaces which contains a specific command
+// Uses Go builtin sort to sort commands based on their compare methods
+// Param: Takes in a array of Sortable interfaces which contains a specific command
 func (s SortCmds) Len() int { return len(s) }
 func (s SortCmds) Less(i,j int) bool { return s[i].Compare(s[j]) }
 func (s SortCmds) Swap(i,j int) { s[i], s[j] = s[j], s[i] }
 
-//Prints the parameters/list for wsk xxxx list
-//Identifies type and then copies array into an array of interfaces(Sortable) to be sorted and printed
-//Param: Takes in an interace which contains an array of a command(Ex: []Action)
+// Prints the parameters/list for wsk xxxx list
+// Identifies type and then copies array into an array of interfaces(Sortable) to be sorted and printed
+// Param: Takes in an interace which contains an array of a command(Ex: []Action)
 func printList(collection interface{}) {
     var commandToSort []whisk.Sortable
     switch collection := collection.(type){
@@ -266,31 +266,31 @@ func printList(collection interface{}) {
             commandToSort = append(commandToSort, collection[i])
         }
         sort.Sort(SortCmds(commandToSort))
-        printCommandsList(commandToSort,true)
+        printCommandsList(commandToSort, "actions")
     case []whisk.Trigger:
       for i := range collection {
           commandToSort = append(commandToSort, collection[i])
       }
       sort.Sort(SortCmds(commandToSort))
-      printCommandsList(commandToSort,true)
+      printCommandsList(commandToSort, "triggers")
     case []whisk.Package:
       for i := range collection {
           commandToSort = append(commandToSort, collection[i])
       }
       sort.Sort(SortCmds(commandToSort))
-      printCommandsList(commandToSort,true)
+      printCommandsList(commandToSort, "packages")
     case []whisk.Rule:
       for i := range collection {
         commandToSort = append(commandToSort, collection[i])
       }
       sort.Sort(SortCmds(commandToSort))
-      printCommandsList(commandToSort,true)
+      printCommandsList(commandToSort, "rules")
     case []whisk.Namespace:
       for i := range collection {
         commandToSort = append(commandToSort, collection[i])
       }
       sort.Sort(SortCmds(commandToSort))
-      printCommandsList(commandToSort,true)
+      printCommandsList(commandToSort, "namespaces")
     case []whisk.Activation:
         printActivationList(collection)
     case []whisk.ApiFilteredList:
@@ -298,13 +298,13 @@ func printList(collection interface{}) {
         commandToSort = append(commandToSort, collection[i])
       }
       sort.Sort(SortCmds(commandToSort))
-      printCommandsList(commandToSort,false)
+      printCommandsList(commandToSort, "")
     case []whisk.ApiFilteredRow:
       for i:= range collection {
         commandToSort = append(commandToSort, collection[i])
       }
       sort.Sort(SortCmds(commandToSort))
-      printCommandsList(commandToSort,false)
+      printCommandsList(commandToSort, "")
 
     }
 }
@@ -342,22 +342,15 @@ func printSummary(collection interface{}) {
     }
 }
 // Used to print Action, Tigger, Package, and Rule lists
-// Param: Takes in a array of Sortable interface
-func printCommandsList(commands []whisk.Sortable, printName bool) {
-    commandName := reflect.TypeOf(commands[0]).Name()
-
-    if printName {
+// Param: Takes in a array of Sortable interface, and the name of the command
+//          being sent to it
+// **Note**: The name sould be an empty string for APIs.
+func printCommandsList(commands []whisk.Sortable, commandName string) {
+    if commandName != "" {
       fmt.Fprintf(color.Output, "%s\n", boldString(commandName))
     }
     for i := range commands {
-      fmt.Print(commands[i].ListString())
-    }
-}
-
-func printNamespaceList(namespaces []whisk.Namespace) {
-    fmt.Fprintf(color.Output, "%s\n", boldString("namespaces"))
-    for _, namespace := range namespaces {
-        fmt.Printf("%s\n", namespace.Name)
+      fmt.Print(commands[i].InfoToString())
     }
 }
 

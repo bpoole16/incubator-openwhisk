@@ -103,11 +103,11 @@ func(xPackage Package) Compare(sortable Sortable) bool{
 }
 
 /*
- *  ListString() returns a compound string of required parameters for printing
+ *  InfoToString() returns a compound string of required parameters for printing
  *    from CLI command `wsk package list`.
  *  ***Method of type Sortable***
  */
-func(xPackage Package) ListString() string{
+func(xPackage Package) InfoToString() string{
     publishState := wski18n.T("private")
 
     if xPackage.Publish != nil && *xPackage.Publish {

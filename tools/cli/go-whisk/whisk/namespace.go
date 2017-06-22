@@ -55,11 +55,11 @@ func(namespace Namespace) Compare(sortable Sortable) bool {
 }
 
 /*
- *  ListString() returns a compound string of required parameters for printing
+ *  InfoToString() returns a compound string of required parameters for printing
  *    from CLI command `wsk namespace list`.
  *  ***Method of type Sortable***
  */
-func(namespace Namespace) ListString() string {
+func(namespace Namespace) InfoToString() string {
     return fmt.Sprintf("%s\n", namespace.Name)
 }
 

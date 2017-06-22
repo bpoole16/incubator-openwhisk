@@ -417,13 +417,7 @@ var packageListCmd = &cobra.Command{
       werr := whisk.MakeWskErrorFromWskError(errors.New(errStr), err, whisk.EXITCODE_ERR_GENERAL, whisk.DISPLAY_MSG, whisk.NO_DISPLAY_USAGE)
       return werr
     }
-
-    if (len(packages) != 0) {
-        whisk.Debug(whisk.DbgInfo, "Sending packages to be printed")
-        printList(packages)
-    } else {
-        whisk.Debug(whisk.DbgInfo, "No packages found in package list")
-    }
+    printList(packages)
     return nil
   },
 }

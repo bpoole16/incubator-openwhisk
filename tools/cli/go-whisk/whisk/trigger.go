@@ -64,11 +64,11 @@ func(trigger Trigger) Compare(sortable Sortable) bool {
 }
 
 /*
- *  ListString() returns a compound string of required parameters for printing
+ *  InfoToString() returns a compound string of required parameters for printing
  *    from CLI command `wsk trigger list`.
  *  ***Method of type Sortable***
  */
-func(trigger Trigger) ListString() string {
+func(trigger Trigger) InfoToString() string {
     publishState := wski18n.T("private")
 
     return fmt.Sprintf("%-70s %s\n", fmt.Sprintf("/%s/%s", trigger.Namespace,

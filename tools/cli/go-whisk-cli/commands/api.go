@@ -423,14 +423,9 @@ var apiListCmd = &cobra.Command{
                         "ok": color.GreenString("ok:"),
                     }))
             for i:=0; i<len(retApiArray.Apis); i++ {
-                sortFilteredList = append(sortFilteredList, printFilteredListApi(retApiArray.Apis[i].ApiValue, (*whisk.ApiOptions)(apiGetReqOptions),flagType)...)
+                sortFilteredList = append(sortFilteredList, parseFilteredList(retApiArray.Apis[i].ApiValue, (*whisk.ApiOptions)(apiGetReqOptions),flagType)...)
             }
-            if (len(sortFilteredList) != 0) {
-                whisk.Debug(whisk.DbgInfo, "Sending sortFilteredList to be printed")
-                printList(sortFilteredList)  //Sends an array of structs that contains specifed variables that are not truncated
-            } else {
-                whisk.Debug(whisk.DbgInfo, "No Apis found in Api list")
-            }
+            printList(sortFilteredList)  // Sends an array of structs that contains specifed variables that are not truncated
         } else {
             // Dynamically create the output format string based on the maximum size of the
             // fully qualified action name and the API Name.
@@ -445,14 +440,9 @@ var apiListCmd = &cobra.Command{
                     }))
             fmt.Printf(fmtString, "Action", "Verb", "API Name", "URL")
             for i:=0; i<len(retApiArray.Apis); i++ {
-                sortFilteredRow = append(sortFilteredRow, printFilteredListRow(retApiArray.Apis[i].ApiValue, (*whisk.ApiOptions)(apiGetReqOptions), maxActionNameSize, maxApiNameSize,flagType)...)
+                sortFilteredRow = append(sortFilteredRow, parseFilteredRow(retApiArray.Apis[i].ApiValue, (*whisk.ApiOptions)(apiGetReqOptions), maxActionNameSize, maxApiNameSize,flagType)...)
             }
-            if (len(sortFilteredRow) != 0) {
-                whisk.Debug(whisk.DbgInfo, "Sending sortFilteredRow to be printed")
-                printList(sortFilteredRow)  //Sends an array of structs that contains specifed variables that are truncated
-            } else {
-                whisk.Debug(whisk.DbgInfo, "No Apis found in Api list")
-            }
+            printList(sortFilteredRow)  // Sends an array of structs that contains specifed variables that are truncated
         }
 
         return nil
@@ -465,7 +455,7 @@ var apiListCmd = &cobra.Command{
  * each endpoint's configuration - one line per configuration property (action name, verb, api name, api gw url)
  * Parses and initializes values for ApiFilteredRow struct
  */
-func printFilteredListApi(resultApi *whisk.RetApi, api *whisk.ApiOptions,flagType string) []whisk.ApiFilteredList {
+func parseFilteredList(resultApi *whisk.RetApi, api *whisk.ApiOptions,flagType string) []whisk.ApiFilteredList {
     var sortInfo whisk.ApiFilteredList
     var sortInfoArr []whisk.ApiFilteredList
     baseUrl := strings.TrimSuffix(resultApi.BaseUrl, "/")
@@ -506,7 +496,7 @@ func printFilteredListApi(resultApi *whisk.RetApi, api *whisk.ApiOptions,flagTyp
  *
  * NOTE: Large action name and api name value will be truncated by their associated max size parameters.
  */
-func printFilteredListRow(resultApi *whisk.RetApi, api *whisk.ApiOptions, maxActionNameSize int, maxApiNameSize int, flagType string) []whisk.ApiFilteredRow {
+func parseFilteredRow(resultApi *whisk.RetApi, api *whisk.ApiOptions, maxActionNameSize int, maxApiNameSize int, flagType string) []whisk.ApiFilteredRow {
     var sortInfo whisk.ApiFilteredRow
     var sortInfoArr []whisk.ApiFilteredRow
     baseUrl := strings.TrimSuffix(resultApi.BaseUrl, "/")
@@ -1208,14 +1198,9 @@ var apiListCmdV2 = &cobra.Command{
                         "ok": color.GreenString("ok:"),
                     }))
             for i:=0; i< len(retApiArray.Apis); i++ {
-                sortFilteredList = append(sortFilteredList, printFilteredListApiV2(retApiArray.Apis[i].ApiValue, apiPath, apiVerb, flagType)...)
+                sortFilteredList = append(sortFilteredList, parseFilteredListV2(retApiArray.Apis[i].ApiValue, apiPath, apiVerb, flagType)...)
             }
-            if (len(sortFilteredList) != 0) {
-                whisk.Debug(whisk.DbgInfo, "Sending sortFilteredList to be printed")
-                printList(sortFilteredList)  //Sends an array of structs that contains specifed variables that are not truncated
-            } else {
-                whisk.Debug(whisk.DbgInfo, "No Apis found in Api list")
-            }
+            printList(sortFilteredList)  // Sends an array of structs that contains specifed variables that are not truncated
         } else {
             if (len(retApiArray.Apis) > 0) {
                 // Dynamically create the output format string based on the maximum size of the
@@ -1230,14 +1215,9 @@ var apiListCmdV2 = &cobra.Command{
                         }))
                 fmt.Printf(fmtString, "Action", "Verb", "API Name", "URL")
                 for i:=0; i< len(retApiArray.Apis); i++ {
-                    sortFilteredRow = append(sortFilteredRow, printFilteredListRowV2(retApiArray.Apis[i].ApiValue, apiPath, apiVerb, maxActionNameSize, maxApiNameSize, flagType)...)
+                    sortFilteredRow = append(sortFilteredRow, parseFilteredRowV2(retApiArray.Apis[i].ApiValue, apiPath, apiVerb, maxActionNameSize, maxApiNameSize, flagType)...)
                 }
-                if (len(sortFilteredRow) != 0) {
-                    whisk.Debug(whisk.DbgInfo, "Sending sortFilteredRow to be printed")
-                    printList(sortFilteredRow)  //Sends an array of structs that contains specifed variables that are truncated
-                } else {
-                    whisk.Debug(whisk.DbgInfo, "No Apis found in Api list")
-                }
+                printList(sortFilteredRow)  // Sends an array of structs that contains specifed variables that are truncated
             } else {
                 fmt.Fprintf(color.Output,
                     wski18n.T("{{.ok}} APIs\n",
@@ -1258,7 +1238,7 @@ var apiListCmdV2 = &cobra.Command{
  * each endpoint's configuration - one line per configuration property (action name, verb, api name, api gw url)
  * Parses and initializes values for ApiFilteredList struct
  */
-func printFilteredListApiV2(resultApi *whisk.RetApiV2, apiPath string, apiVerb string,flagType string) []whisk.ApiFilteredList{
+func parseFilteredListV2(resultApi *whisk.RetApiV2, apiPath string, apiVerb string,flagType string) []whisk.ApiFilteredList{
     var sortInfo whisk.ApiFilteredList
     var sortInfoArr []whisk.ApiFilteredList
     baseUrl := strings.TrimSuffix(resultApi.BaseUrl, "/")
@@ -1266,13 +1246,13 @@ func printFilteredListApiV2(resultApi *whisk.RetApiV2, apiPath string, apiVerb s
     basePath := resultApi.Swagger.BasePath
     if (resultApi.Swagger != nil && resultApi.Swagger.Paths != nil) {
         for path, _ := range resultApi.Swagger.Paths {
-            whisk.Debug(whisk.DbgInfo, "printFilteredListApiV2: comparing api relpath: %s\n", path)
+            whisk.Debug(whisk.DbgInfo, "parseFilteredListV2: comparing api relpath: %s\n", path)
             if ( len(apiPath) == 0 || path == apiPath) {
-                whisk.Debug(whisk.DbgInfo, "printFilteredListApiV2: relpath matches\n")
+                whisk.Debug(whisk.DbgInfo, "parseFilteredListV2: relpath matches\n")
                 for op, opv  := range resultApi.Swagger.Paths[path] {
-                    whisk.Debug(whisk.DbgInfo, "printFilteredListApiV2: comparing operation: '%s'\n", op)
+                    whisk.Debug(whisk.DbgInfo, "parseFilteredListV2: comparing operation: '%s'\n", op)
                     if ( len(apiVerb) == 0 || strings.ToLower(op) == strings.ToLower(apiVerb)) {
-                        whisk.Debug(whisk.DbgInfo, "printFilteredListApiV2: operation matches: %#v\n", opv)
+                        whisk.Debug(whisk.DbgInfo, "parseFilteredListV2: operation matches: %#v\n", opv)
                         var actionName string
                         if (len(opv.XOpenWhisk.Package) > 0) {
                             actionName = "/"+opv.XOpenWhisk.Namespace+"/"+opv.XOpenWhisk.Package+"/"+opv.XOpenWhisk.ActionName
@@ -1304,7 +1284,7 @@ func printFilteredListApiV2(resultApi *whisk.RetApiV2, apiPath string, apiVerb s
  *
  * NOTE: Large action name and api name value will be truncated by their associated max size parameters.
  */
-func printFilteredListRowV2(resultApi *whisk.RetApiV2, apiPath string, apiVerb string, maxActionNameSize int, maxApiNameSize int, flagType string) []whisk.ApiFilteredRow {
+func parseFilteredRowV2(resultApi *whisk.RetApiV2, apiPath string, apiVerb string, maxActionNameSize int, maxApiNameSize int, flagType string) []whisk.ApiFilteredRow {
     var sortInfo whisk.ApiFilteredRow
     var sortInfoArr []whisk.ApiFilteredRow
     baseUrl := strings.TrimSuffix(resultApi.BaseUrl, "/")
@@ -1312,13 +1292,13 @@ func printFilteredListRowV2(resultApi *whisk.RetApiV2, apiPath string, apiVerb s
     basePath := resultApi.Swagger.BasePath
     if (resultApi.Swagger != nil && resultApi.Swagger.Paths != nil) {
         for path, _ := range resultApi.Swagger.Paths {
-            whisk.Debug(whisk.DbgInfo, "printFilteredListRowV2: comparing api relpath: %s\n", path)
+            whisk.Debug(whisk.DbgInfo, "parseFilteredRowV2: comparing api relpath: %s\n", path)
             if ( len(apiPath) == 0 || path == apiPath) {
-                whisk.Debug(whisk.DbgInfo, "printFilteredListRowV2: relpath matches\n")
+                whisk.Debug(whisk.DbgInfo, "parseFilteredRowV2: relpath matches\n")
                 for op, opv  := range resultApi.Swagger.Paths[path] {
-                    whisk.Debug(whisk.DbgInfo, "printFilteredListRowV2: comparing operation: '%s'\n", op)
+                    whisk.Debug(whisk.DbgInfo, "parseFilteredRowV2: comparing operation: '%s'\n", op)
                     if ( len(apiVerb) == 0 || strings.ToLower(op) == strings.ToLower(apiVerb)) {
-                        whisk.Debug(whisk.DbgInfo, "printFilteredListRowV2: operation matches: %#v\n", opv)
+                        whisk.Debug(whisk.DbgInfo, "parseFilteredRowV2: operation matches: %#v\n", opv)
                         var actionName string
                         if (len(opv.XOpenWhisk.Package) > 0) {
                             actionName = "/"+opv.XOpenWhisk.Namespace+"/"+opv.XOpenWhisk.Package+"/"+opv.XOpenWhisk.ActionName

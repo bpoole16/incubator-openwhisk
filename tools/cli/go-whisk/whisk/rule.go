@@ -63,11 +63,11 @@ func(rule Rule) Compare(sortable Sortable) bool{
 }
 
 /*
- *  ListString() returns a compound string of required parameters for printing
+ *  InfoToString() returns a compound string of required parameters for printing
  *    from CLI command `wsk rule list`.
  *  ***Method of type Sortable***
  */
-func(rule Rule) ListString() string{
+func(rule Rule) InfoToString() string{
     publishState := wski18n.T("private")
 
     return fmt.Sprintf("%-70s %s\n", fmt.Sprintf("/%s/%s", rule.Namespace,

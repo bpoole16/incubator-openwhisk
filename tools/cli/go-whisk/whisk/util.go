@@ -28,9 +28,10 @@ import (
     "../wski18n"
 )
 
+// Sortable items are anything that needs to be sorted, listed, and printed.
 type Sortable interface {
-    Compare(s Sortable) bool
-    ListString() string
+    Compare(s Sortable) bool  // Used for defining how to sort a Sortable
+    InfoToString() string     // Defines what information to print for a Sortable
 }
 
 // addOptions adds the parameters in opt as URL query parameters to s.  opt
