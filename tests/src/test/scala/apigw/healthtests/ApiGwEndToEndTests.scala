@@ -142,7 +142,7 @@ class ApiGwEndToEndTests
         }
     }
 
-    it should "return a list of alphabetized api-experimental" in withAssetCleaner(wskprops) {
+    it should "list api-experimental alphabetically by Base/Rel/Verb and Action name" in withAssetCleaner(wskprops) {
     (wp, assetHelper) =>
 
         val actionName1 = "actionName1"
@@ -185,67 +185,19 @@ class ApiGwEndToEndTests
             )
             val original = wsk.apiexperimental.list().stdout
             val originalFull = wsk.apiexperimental.list(full = Some(true)).stdout
+            val originalAction = wsk.apiexperimental.list(sortAction = Some(true)).stdout
+            val originalFullAction = wsk.apiexperimental.list(full = Some(true), sortAction = Some(true)).stdout
             val scalaSorted = List(base1 + "/", base2 + "/", base3 + "/")
+            val scalaSortedAction = List(actionName1, actionName2, actionName3)
             val regex = "/BaseTestPath[1-3]/".r
+            val regexAction = "actionName[1-3]".r
             val list  = (regex.findAllMatchIn(original)).toList
             val listFull  = (regex.findAllMatchIn(originalFull)).toList
-            scalaSorted.toString shouldEqual list.toString
-            scalaSorted.toString shouldEqual listFull.toString
-        } finally {
-            // Clean up apiexperimentals
-            wsk.apiexperimental.delete(base1, expectedExitCode = DONTCARE_EXIT)
-            wsk.apiexperimental.delete(base2, expectedExitCode = DONTCARE_EXIT)
-            wsk.apiexperimental.delete(base3, expectedExitCode = DONTCARE_EXIT)
-        }
-    }
+            val listAction  = (regexAction.findAllMatchIn(originalAction)).toList
+            val listFullAction  = (regexAction.findAllMatchIn(originalFullAction)).toList
 
-    it should "return a list of alphabetized api-experimental by action name" in withAssetCleaner(wskprops) {
-    (wp, assetHelper) =>
-
-        val actionName1 = "actionName1"
-        val actionName2 = "actionName2"
-        val actionName3 = "actionName3"
-        val base1 = "/BaseTestPath1"
-        val base2 = "/BaseTestPath2"
-        val base3 = "/BaseTestPath3"
-
-        try {
-            // Create Actions for api-experimentals
-            val file = TestUtils.getTestActionFilename(s"echo-web-http.js")
-            assetHelper.withCleaner(wsk.action, actionName1) {
-                (action, name) => action.create(name, artifact = Some(file), expectedExitCode = SUCCESS_EXIT, web = Some("true"))
-            }
-            assetHelper.withCleaner(wsk.action, actionName2) {
-                (action, name) => action.create(name, artifact = Some(file), expectedExitCode = SUCCESS_EXIT, web = Some("true"))
-            }
-            assetHelper.withCleaner(wsk.action, actionName3) {
-                (action, name) => action.create(name, artifact = Some(file), expectedExitCode = SUCCESS_EXIT, web = Some("true"))
-            }
-            // Create api-experimentals
-            wsk.apiexperimental.create(
-              basepath = Some(base2),
-              relpath = Some("/relPath1"),
-              operation = Some("get"),
-              action = Some(actionName2)
-            )
-            wsk.apiexperimental.create(
-              basepath = Some(base1),
-              relpath = Some("/relPath2"),
-              operation = Some("delete"),
-              action = Some(actionName1)
-            )
-            wsk.apiexperimental.create(
-              basepath = Some(base3),
-              relpath = Some("/relPath3"),
-              operation = Some("head"),
-              action = Some(actionName3)
-            )
-            val original = wsk.apiexperimental.list(sortAction = Some(true)).stdout
-            val originalFull = wsk.apiexperimental.list(full = Some(true), sortAction = Some(true)).stdout
-            val scalaSorted = List(actionName1, actionName2, actionName3)
-            val regex = "actionName[1-3]".r
-            val list  = (regex.findAllMatchIn(original)).toList
-            val listFull  = (regex.findAllMatchIn(originalFull)).toList
+            scalaSortedAction.toString shouldEqual listAction.toString
+            scalaSortedAction.toString shouldEqual listFullAction.toString
             scalaSorted.toString shouldEqual list.toString
             scalaSorted.toString shouldEqual listFull.toString
         } finally {
@@ -353,7 +305,7 @@ class ApiGwEndToEndTests
         }
     }
 
-    it should "return a list of alphabetized api" in withAssetCleaner(wskprops) {
+    it should "list api alphabetically by Base/Rel/Verb and Action name" in withAssetCleaner(wskprops) {
     (wp, assetHelper) =>
 
         val actionName1 = "actionName1"
@@ -399,12 +351,23 @@ class ApiGwEndToEndTests
             )
             val original = wsk.api.list(cliCfgFile = Some(cliWskPropsFile.getCanonicalPath())).stdout
             val originalFull = wsk.api.list(full = Some(true), cliCfgFile = Some(cliWskPropsFile.getCanonicalPath())).stdout
+            val originalAction = wsk.api.list(sortAction = Some(true),
+                cliCfgFile = Some(cliWskPropsFile.getCanonicalPath())).stdout
+            val originalFullAction = wsk.api.list(full = Some(true), sortAction = Some(true),
+                cliCfgFile = Some(cliWskPropsFile.getCanonicalPath())).stdout
             val scalaSorted = List(base1 + "/", base2 + "/", base3 + "/")
+            val scalaSortedAction = List(actionName1, actionName2, actionName3)
             val regex = "/BaseTestPath[1-3]/".r
+            val regexAction = "actionName[1-3]".r
             val list  = (regex.findAllMatchIn(original)).toList
+            val listAction  = (regexAction.findAllMatchIn(originalAction)).toList
             val listFull = (regex.findAllMatchIn(originalFull)).toList
+            val listFullAction  = (regexAction.findAllMatchIn(originalFullAction)).toList
+
             scalaSorted.toString shouldEqual list.toString
             scalaSorted.toString shouldEqual listFull.toString
+            scalaSortedAction.toString shouldEqual listAction.toString
+            scalaSortedAction.toString shouldEqual listFullAction.toString
         } finally {
             // Clean up Apis
             wsk.api.delete(base1, expectedExitCode = DONTCARE_EXIT, cliCfgFile = Some(cliWskPropsFile.getCanonicalPath()))
@@ -457,16 +420,16 @@ class ApiGwEndToEndTests
               action = Some(actionName3),
               cliCfgFile = Some(cliWskPropsFile.getCanonicalPath())
             )
-            val original = wsk.api.list(sortAction = Some(true),
+            val originalAction = wsk.api.list(sortAction = Some(true),
                 cliCfgFile = Some(cliWskPropsFile.getCanonicalPath())).stdout
-            val originalFull = wsk.api.list(full = Some(true), sortAction = Some(true),
+            val originalFullAction = wsk.api.list(full = Some(true), sortAction = Some(true),
                 cliCfgFile = Some(cliWskPropsFile.getCanonicalPath())).stdout
-            val scalaSorted = List(actionName1, actionName2, actionName3)
-            val regex = "actionName[1-3]".r
-            val list  = (regex.findAllMatchIn(original)).toList
-            val listFull  = (regex.findAllMatchIn(originalFull)).toList
-            scalaSorted.toString shouldEqual list.toString
-            scalaSorted.toString shouldEqual listFull.toString
+            val scalaSortedAction = List(actionName1, actionName2, actionName3)
+            val regexAction = "actionName[1-3]".r
+            val listAction  = (regexAction.findAllMatchIn(originalAction)).toList
+            val listFullAction  = (regexAction.findAllMatchIn(originalFullAction)).toList
+            scalaSortedAction.toString shouldEqual listAction.toString
+            scalaSortedAction.toString shouldEqual listFullAction.toString
         } finally {
             // Clean up Apis
             wsk.api.delete(base1, expectedExitCode = DONTCARE_EXIT, cliCfgFile = Some(cliWskPropsFile.getCanonicalPath()))

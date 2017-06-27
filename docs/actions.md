@@ -944,13 +944,13 @@ You can list all the actions that you have created using:
 wsk action list
 ```
 
-By default, listed actions will be sorted alphabetically, first by namespaces, then [packages](./packages.md), and finally by action name. To filter your list of actions to just the those within a specific pacakge, you can use:
+By default, listed actions will be sorted alphabetically, first by namespaces, then [packages](./packages.md), and finally by action name. To filter your list of actions to just those within a specific package, you can use:
 
 ```
 wsk action list [PACKAGE NAME]
 ```
 
-*Note:* Listing works the same way for actions as it does for [packages](./packages.md), [APIs](./apigateway.md), [triggers and rules](./triggers_rules.md). 
+*Note:* Listing works the same way for actions as it does for [packages](./packages.md), [APIs](./apigateway.md), [triggers and rules](./triggers_rules.md).
 
 ## Deleting actions
 

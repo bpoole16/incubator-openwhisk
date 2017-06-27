@@ -46,14 +46,12 @@ type RuleListOptions struct {
     Docs        bool    `url:"docs,omitempty"`
 }
 
-/*
- *  Compare(s) compares Rule r to Sortable s for the purpose of sorting.
- *  params: Sortable type s that is also of type Rule (REQUIRED)
- *  ***Method of type Sortable***
- *  ***By default, sorts Alphabetically***
- */
+// Compare(sortable) compares rule to sortable for the purpose of sorting.
+// params: sortable that is also of type Rule (REQUIRED).
+// ***Method of type Sortable***
+// ***By default, sorts Alphabetically***
 func(rule Rule) Compare(sortable Sortable) bool{
-  // convert s back to proper type
+  // convert sortable back to proper type
   ruleToCompare := sortable.(Rule)
   ruleString := strings.ToLower(fmt.Sprintf("%s%s",rule.Namespace, rule.Name))
   compareString := strings.ToLower(fmt.Sprintf("%s%s", ruleToCompare.Namespace,
@@ -62,11 +60,9 @@ func(rule Rule) Compare(sortable Sortable) bool{
   return ruleString < compareString
 }
 
-/*
- *  InfoToString() returns a compound string of required parameters for printing
- *    from CLI command `wsk rule list`.
- *  ***Method of type Sortable***
- */
+// InfoToString() returns a compound string of required parameters for printing
+//   from CLI command `wsk rule list`.
+// ***Method of type Sortable***
 func(rule Rule) InfoToString() string{
     publishState := wski18n.T("private")
 

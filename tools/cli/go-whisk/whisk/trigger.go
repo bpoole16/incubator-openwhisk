@@ -46,14 +46,12 @@ type TriggerListOptions struct {
     Docs            bool            `url:"docs,omitempty"`
 }
 
-/*
- *  Compare(s) compares Trigger t to Sortable s for the purpose of sorting.
- *  params: Sortable type s that is also of type Trigger (REQUIRED)
- *  ***Method of type Sortable***
- *  ***By default, sorts Alphabetically***
- */
+// Compare(sortable) compares trigger to sortable for the purpose of sorting.
+// params: sortable that is also of type Trigger (REQUIRED).
+// ***Method of type Sortable***
+// ***By default, sorts Alphabetically***
 func(trigger Trigger) Compare(sortable Sortable) bool {
-    // convert s back to proper type
+    // convert sortable back to proper type
     triggerToCompare := sortable.(Trigger)
     triggerString := strings.ToLower(fmt.Sprintf("%s%s",trigger.Namespace,
         trigger.Name))
@@ -63,11 +61,9 @@ func(trigger Trigger) Compare(sortable Sortable) bool {
     return triggerString < compareString
 }
 
-/*
- *  InfoToString() returns a compound string of required parameters for printing
- *    from CLI command `wsk trigger list`.
- *  ***Method of type Sortable***
- */
+// InfoToString() returns a compound string of required parameters for printing
+//   from CLI command `wsk trigger list`.
+// ***Method of type Sortable***
 func(trigger Trigger) InfoToString() string {
     publishState := wski18n.T("private")
 

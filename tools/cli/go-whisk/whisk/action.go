@@ -56,37 +56,29 @@ type ActionListOptions struct {
     Skip        int         `url:"skip"`
     Docs        bool        `url:"docs,omitempty"`
 }
-/*
- *  Compare(s) compares 'action' to 'sortable' for the purpose of sorting.
- *  variables:
- *    actionToCompare: Action passed as parameter to be compared to 'action'.
- *    actionString: Compound string used for comparison based on the Action
- *      calling func Compare.
- *    compareString: Compound string used for comparison based on the parameter.
- *  params: sortable that is also of type Action (REQUIRED).
- *  ***Method of type Sortable***
- *  ***By default, sorts Alphabetically***
- */
+
+// Compare(sortable) compares action to sortable for the purpose of sorting.
+// params: sortable that is also of type Action (REQUIRED).
+// ***Method of type Sortable***
+// ***By default, sorts Alphabetically***
 func(action Action) Compare(sortable Sortable) bool{
   // convert sortable back to proper type
   actionToCompare := sortable.(Action)
-  actionString := strings.ToLower(fmt.Sprintf("%s%s",action.Namespace, action.Name))
+  actionString := strings.ToLower(fmt.Sprintf("%s%s", action.Namespace, action.Name))
   compareString := strings.ToLower(fmt.Sprintf("%s%s", actionToCompare.Namespace,
       actionToCompare.Name))
 
   return actionString < compareString
 }
 
-/*
- *  InfoToString() returns a compound string of required parameters for printing
- *    from CLI command `wsk action list`.
- *  ***Method of type Sortable***
- */
+// InfoToString() returns a compound string of required parameters for printing
+//   from CLI command `wsk action list`.
+// ***Method of type Sortable***
 func(action Action) InfoToString() string{
   publishState := wski18n.T("private")
   var kind string
 
-  for i:= range action.Annotations {
+  for i := range action.Annotations {
     if (action.Annotations[i].Key == "exec") {
       kind = action.Annotations[i].Value.(string)
       break

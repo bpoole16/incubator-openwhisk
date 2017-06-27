@@ -85,14 +85,12 @@ type PackageListOptions struct {
     Docs        bool                `url:"docs,omitempty"`
 }
 
-/*
- *  Compare(s) compares Package p to Sortable s for the purpose of sorting.
- *  params: Sortable type s that is also of type Package (REQUIRED)
- *  ***Method of type Sortable***
- *  ***By default, sorts Alphabetically***
- */
+// Compare(sortable) compares xPackage to sortable for the purpose of sorting.
+// params: sortable that is also of type Package (REQUIRED).
+// ***Method of type Sortable***
+// ***By default, sorts Alphabetically***
 func(xPackage Package) Compare(sortable Sortable) bool{
-  // convert s back to proper type
+  // convert sortable back to proper type
   packageToCompare := sortable.(Package)
   packageString := strings.ToLower(fmt.Sprintf("%s%s",xPackage.Namespace,
       xPackage.Name))
@@ -102,11 +100,9 @@ func(xPackage Package) Compare(sortable Sortable) bool{
   return packageString < compareString
 }
 
-/*
- *  InfoToString() returns a compound string of required parameters for printing
- *    from CLI command `wsk package list`.
- *  ***Method of type Sortable***
- */
+// InfoToString() returns a compound string of required parameters for printing
+//   from CLI command `wsk package list`.
+// ***Method of type Sortable***
 func(xPackage Package) InfoToString() string{
     publishState := wski18n.T("private")
 

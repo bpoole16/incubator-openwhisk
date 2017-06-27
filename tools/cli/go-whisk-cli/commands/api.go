@@ -422,7 +422,7 @@ var apiListCmd = &cobra.Command{
                     map[string]interface{}{
                         "ok": color.GreenString("ok:"),
                     }))
-            for i:=0; i<len(retApiArray.Apis); i++ {
+            for i := 0; i<len(retApiArray.Apis); i++ {
                 sortFilteredList = append(sortFilteredList, parseFilteredList(retApiArray.Apis[i].ApiValue, (*whisk.ApiOptions)(apiGetReqOptions),flagType)...)
             }
             printList(sortFilteredList)  // Sends an array of structs that contains specifed variables that are not truncated
@@ -439,7 +439,7 @@ var apiListCmd = &cobra.Command{
                         "ok": color.GreenString("ok:"),
                     }))
             fmt.Printf(fmtString, "Action", "Verb", "API Name", "URL")
-            for i:=0; i<len(retApiArray.Apis); i++ {
+            for i := 0; i<len(retApiArray.Apis); i++ {
                 sortFilteredRow = append(sortFilteredRow, parseFilteredRow(retApiArray.Apis[i].ApiValue, (*whisk.ApiOptions)(apiGetReqOptions), maxActionNameSize, maxApiNameSize,flagType)...)
             }
             printList(sortFilteredRow)  // Sends an array of structs that contains specifed variables that are truncated
@@ -471,13 +471,7 @@ func parseFilteredList(resultApi *whisk.RetApi, api *whisk.ApiOptions,flagType s
                     if ( len(api.ApiVerb) == 0 || strings.ToLower(op) == strings.ToLower(api.ApiVerb)) {
                         whisk.Debug(whisk.DbgInfo, "apiGetCmd: operation matches: %#v\n", opv)
                         var actionName = "/"+opv.XOpenWhisk.Namespace+"/"+opv.XOpenWhisk.ActionName
-                        sortInfo.ActionName = actionName
-                        sortInfo.ApiName = apiName
-                        sortInfo.BasePath = basePath
-                        sortInfo.RelPath = path
-                        sortInfo.Verb = op
-                        sortInfo.Url = baseUrl+path
-                        sortInfo.Flag = flagType
+                        sortInfo = AssignListInfo(actionName, op, apiName, basePath, path, baseUrl+path, flagType)
                         whisk.Debug(whisk.DbgInfo, "Appening to sortInfoArr: %s\n", sortInfo.RelPath)
                         sortInfoArr = append(sortInfoArr, sortInfo)
                     }
@@ -512,14 +506,8 @@ func parseFilteredRow(resultApi *whisk.RetApi, api *whisk.ApiOptions, maxActionN
                     if ( len(api.ApiVerb) == 0 || strings.ToLower(op) == strings.ToLower(api.ApiVerb)) {
                         whisk.Debug(whisk.DbgInfo, "apiGetCmd: operation matches: %#v\n", opv)
                         var actionName = "/"+opv.XOpenWhisk.Namespace+"/"+opv.XOpenWhisk.ActionName
-                        sortInfo.ActionName =  actionName[0 : min(len(actionName), maxActionNameSize)]
-                        sortInfo.Verb = op
-                        sortInfo.ApiName = apiName[0 : min(len(apiName), maxApiNameSize)]
-                        sortInfo.Url = baseUrl+path
-                        sortInfo.RelPath = path
-                        sortInfo.BasePath = basePath
+                        sortInfo = AssignRowInfo(actionName[0 : min(len(actionName), maxActionNameSize)], op, apiName[0 : min(len(apiName), maxApiNameSize)], basePath, path, baseUrl+path, flagType)
                         sortInfo.FmtString = fmtString
-                        sortInfo.Flag = flagType
                         whisk.Debug(whisk.DbgInfo, "Appening to sortInfoArr: %s\n", sortInfo.RelPath)
                         sortInfoArr = append(sortInfoArr, sortInfo)
                     }
@@ -532,7 +520,7 @@ func parseFilteredRow(resultApi *whisk.RetApi, api *whisk.ApiOptions, maxActionN
 
 func getLargestActionNameSize(retApiArray *whisk.RetApiArray, api *whisk.ApiOptions) int {
     var maxNameSize = 0
-    for i:=0; i<len(retApiArray.Apis); i++ {
+    for i := 0; i<len(retApiArray.Apis); i++ {
         var resultApi = retApiArray.Apis[i].ApiValue
         if (resultApi.Swagger != nil && resultApi.Swagger.Paths != nil) {
             for path, _ := range resultApi.Swagger.Paths {
@@ -558,7 +546,7 @@ func getLargestActionNameSize(retApiArray *whisk.RetApiArray, api *whisk.ApiOpti
 
 func getLargestApiNameSize(retApiArray *whisk.RetApiArray, api *whisk.ApiOptions) int {
     var maxNameSize = 0
-    for i:=0; i<len(retApiArray.Apis); i++ {
+    for i := 0; i<len(retApiArray.Apis); i++ {
         var resultApi = retApiArray.Apis[i].ApiValue
         apiName := resultApi.Swagger.Info.Title
         if (resultApi.Swagger != nil && resultApi.Swagger.Paths != nil) {
@@ -768,7 +756,6 @@ func isValidRelpath(relpath string) (error, bool) {
     }
     return nil, true
 }
-
 
 /*
  * Pull the managedUrl (external API URL) from the API configuration
@@ -1112,8 +1099,6 @@ var apiListCmdV2 = &cobra.Command{
         var sortFilteredList []whisk.ApiFilteredList
         var sortFilteredRow []whisk.ApiFilteredRow
 
-
-
         if whiskErr := checkArgs(args, 0, 3, "Api list",
             wski18n.T("Optional parameters are: API base path (or API name), API relative path and operation.")); whiskErr != nil {
             return whiskErr
@@ -1197,7 +1182,7 @@ var apiListCmdV2 = &cobra.Command{
                     map[string]interface{}{
                         "ok": color.GreenString("ok:"),
                     }))
-            for i:=0; i< len(retApiArray.Apis); i++ {
+            for i := 0; i< len(retApiArray.Apis); i++ {
                 sortFilteredList = append(sortFilteredList, parseFilteredListV2(retApiArray.Apis[i].ApiValue, apiPath, apiVerb, flagType)...)
             }
             printList(sortFilteredList)  // Sends an array of structs that contains specifed variables that are not truncated
@@ -1214,7 +1199,7 @@ var apiListCmdV2 = &cobra.Command{
                             "ok": color.GreenString("ok:"),
                         }))
                 fmt.Printf(fmtString, "Action", "Verb", "API Name", "URL")
-                for i:=0; i< len(retApiArray.Apis); i++ {
+                for i := 0; i< len(retApiArray.Apis); i++ {
                     sortFilteredRow = append(sortFilteredRow, parseFilteredRowV2(retApiArray.Apis[i].ApiValue, apiPath, apiVerb, maxActionNameSize, maxApiNameSize, flagType)...)
                 }
                 printList(sortFilteredRow)  // Sends an array of structs that contains specifed variables that are truncated
@@ -1259,13 +1244,7 @@ func parseFilteredListV2(resultApi *whisk.RetApiV2, apiPath string, apiVerb stri
                         } else {
                             actionName = "/"+opv.XOpenWhisk.Namespace+"/"+opv.XOpenWhisk.ActionName
                         }
-                        sortInfo.ActionName = actionName
-                        sortInfo.ApiName = apiName
-                        sortInfo.BasePath = basePath
-                        sortInfo.RelPath = path
-                        sortInfo.Verb = op
-                        sortInfo.Url = baseUrl+path
-                        sortInfo.Flag = flagType
+                        sortInfo = AssignListInfo(actionName, op, apiName, basePath, path, baseUrl+path, flagType)
                         whisk.Debug(whisk.DbgInfo, "Appening to sortInfoArr: %s %s\n", sortInfo.RelPath)
                         sortInfoArr = append(sortInfoArr, sortInfo)
                     }
@@ -1305,14 +1284,8 @@ func parseFilteredRowV2(resultApi *whisk.RetApiV2, apiPath string, apiVerb strin
                         } else {
                             actionName = "/"+opv.XOpenWhisk.Namespace+"/"+opv.XOpenWhisk.ActionName
                         }
-                        sortInfo.ActionName =  actionName[0 : min(len(actionName), maxActionNameSize)]
-                        sortInfo.Verb = op
-                        sortInfo.ApiName = apiName[0 : min(len(apiName), maxApiNameSize)]
-                        sortInfo.Url = baseUrl+path
-                        sortInfo.RelPath = path
-                        sortInfo.BasePath = basePath
+                        sortInfo = AssignRowInfo(actionName[0 : min(len(actionName), maxActionNameSize)], op, apiName[0 : min(len(apiName), maxApiNameSize)], basePath, path, baseUrl+path, flagType)
                         sortInfo.FmtString = fmtString
-                        sortInfo.Flag = flagType
                         whisk.Debug(whisk.DbgInfo, "Appening to sortInfoArr: %s %s\n", sortInfo.RelPath)
                         sortInfoArr = append(sortInfoArr, sortInfo)
                     }
@@ -1323,9 +1296,35 @@ func parseFilteredRowV2(resultApi *whisk.RetApiV2, apiPath string, apiVerb strin
     return sortInfoArr
 }
 
+func AssignRowInfo(actionName string, verb string, apiName string, basePath string, relPath string, url string, flag string ) whisk.ApiFilteredRow {
+    var sortInfo whisk.ApiFilteredRow
+
+    sortInfo.ActionName = actionName
+    sortInfo.Verb = verb
+    sortInfo.ApiName = apiName
+    sortInfo.BasePath = basePath
+    sortInfo.RelPath = relPath
+    sortInfo.Url = url
+    sortInfo.Flag = flag
+    return sortInfo
+}
+
+func AssignListInfo(actionName string, verb string, apiName string, basePath string, relPath string, url string, flag string ) whisk.ApiFilteredList {
+    var sortInfo whisk.ApiFilteredList
+
+    sortInfo.ActionName = actionName
+    sortInfo.Verb = verb
+    sortInfo.ApiName = apiName
+    sortInfo.BasePath = basePath
+    sortInfo.RelPath = relPath
+    sortInfo.Url = url
+    sortInfo.Flag = flag
+    return sortInfo
+}
+
 func getLargestActionNameSizeV2(retApiArray *whisk.RetApiArrayV2, apiPath string, apiVerb string) int {
     var maxNameSize = 0
-    for i:=0; i<len(retApiArray.Apis); i++ {
+    for i := 0; i<len(retApiArray.Apis); i++ {
         var resultApi = retApiArray.Apis[i].ApiValue
         if (resultApi.Swagger != nil && resultApi.Swagger.Paths != nil) {
             for path, _ := range resultApi.Swagger.Paths {
@@ -1356,7 +1355,7 @@ func getLargestActionNameSizeV2(retApiArray *whisk.RetApiArrayV2, apiPath string
 
 func getLargestApiNameSizeV2(retApiArray *whisk.RetApiArrayV2, apiPath string, apiVerb string) int {
     var maxNameSize = 0
-    for i:=0; i<len(retApiArray.Apis); i++ {
+    for i := 0; i<len(retApiArray.Apis); i++ {
         var resultApi = retApiArray.Apis[i].ApiValue
         apiName := resultApi.Swagger.Info.Title
         if (resultApi.Swagger != nil && resultApi.Swagger.Paths != nil) {

@@ -228,15 +228,12 @@ const (
 // Api Methods //
 ////////////////////
 
-/*
- *  Compare(s) compares ApiFilteredList api to Sortable s for the purpose of
- *    sorting.
- *  params: Sortable type s that is also of type ApiFilteredList (REQUIRED)
- *  ***Method of type Sortable***
- *  ***By default, sorts Alphabetically***
- */
+// Compare(sortable) compares api to sortable for the purpose of sorting.
+// params: sortable that is also of type ApiFilteredList (REQUIRED).
+// ***Method of type Sortable***
+// ***By default, sorts Alphabetically***
 func(api ApiFilteredList) Compare(sortable Sortable) bool{
-  // convert s back to proper type
+  // convert sortable back to proper type
   apiToCompare := sortable.(ApiFilteredList)
   var apiString string
   var compareString string
@@ -258,30 +255,25 @@ func(api ApiFilteredList) Compare(sortable Sortable) bool{
   return apiString < compareString
 }
 
-/*
- *  InfoToString() returns a compound string of required parameters for printing
- *    from CLI command `wsk api list` or `wsk api-experimental list`.
- *  ***Method of type Sortable***
- */
+// InfoToString() returns a compound string of required parameters for printing
+//   from CLI command `wsk api list` or `wsk api-experimental list`.
+// ***Method of type Sortable***
 func(api ApiFilteredList) InfoToString() string {
     return fmt.Sprintf("%s %s %s %s %s %s",
-    fmt.Sprintf("%s: %s\n", wski18n.T("Action"), api.ActionName),
-    fmt.Sprintf("  %s: %s\n", wski18n.T("API Name"), api.ApiName),
-    fmt.Sprintf("  %s: %s\n", wski18n.T("Base path"), api.BasePath),
-    fmt.Sprintf("  %s: %s\n", wski18n.T("Path"), api.RelPath),
-    fmt.Sprintf("  %s: %s\n", wski18n.T("Verb"), api.Verb),
-    fmt.Sprintf("  %s: %s\n", wski18n.T("URL"), api.Url))
+        fmt.Sprintf("%s: %s\n", wski18n.T("Action"), api.ActionName),
+        fmt.Sprintf("  %s: %s\n", wski18n.T("API Name"), api.ApiName),
+        fmt.Sprintf("  %s: %s\n", wski18n.T("Base path"), api.BasePath),
+        fmt.Sprintf("  %s: %s\n", wski18n.T("Path"), api.RelPath),
+        fmt.Sprintf("  %s: %s\n", wski18n.T("Verb"), api.Verb),
+        fmt.Sprintf("  %s: %s\n", wski18n.T("URL"), api.Url))
 }
 
-/*
- *  Compare(s) compares ApiFilteredRow api to Sortable s for the purpose of
- *    sorting.
- *  params: Sortable type s that is also of type ApiFilteredRow (REQUIRED)
- *  ***Method of type Sortable***
- *  ***By default, sorts Alphabetically***
- */
+// Compare(sortable) compares api to sortable for the purpose of sorting.
+// params: sortable that is also of type ApiFilteredRow (REQUIRED).
+// ***Method of type Sortable***
+// ***By default, sorts Alphabetically***
 func(api ApiFilteredRow) Compare(sortable Sortable) bool{
-  // convert s back to proper type
+  // convert sortable back to proper type
   apiToCompare := sortable.(ApiFilteredRow)
   var apiString string
   var compareString string
@@ -303,11 +295,9 @@ func(api ApiFilteredRow) Compare(sortable Sortable) bool{
   return apiString < compareString
 }
 
-/*
- *  InfoToString() returns a compound string of required parameters for printing
- *    from CLI command `wsk api list -f` or `wsk api-experimental list -f`.
- *  ***Method of type Sortable***
- */
+// InfoToString() returns a compound string of required parameters for printing
+//   from CLI command `wsk api list -f` or `wsk api-experimental list -f`.
+// ***Method of type Sortable***
 func(api ApiFilteredRow) InfoToString() string {
   return fmt.Sprintf(api.FmtString, api.ActionName, api.Verb, api.ApiName, api.Url)
 }
@@ -608,7 +598,7 @@ func (s *ApiService) DeleteV2(api *ApiDeleteRequest, options *ApiDeleteRequestOp
 
 
 func validateApiListResponse(apiList *ApiListResponseV2) error {
-    for i:=0; i<len(apiList.Apis); i++ {
+    for i := 0; i<len(apiList.Apis); i++ {
         if apiList.Apis[i].ApiValue == nil {
             Debug(DbgError, "validateApiResponse: No value stanza in api %v\n", apiList.Apis[i])
             errMsg := wski18n.T("Internal error. Missing value stanza in API configuration response")

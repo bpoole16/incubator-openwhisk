@@ -294,13 +294,13 @@ func printList(collection interface{}) {
     case []whisk.Activation:
         printActivationList(collection)
     case []whisk.ApiFilteredList:
-      for i:= range collection {
+      for i := range collection {
         commandToSort = append(commandToSort, collection[i])
       }
       sort.Sort(SortCmds(commandToSort))
       printCommandsList(commandToSort, "")
     case []whisk.ApiFilteredRow:
-      for i:= range collection {
+      for i := range collection {
         commandToSort = append(commandToSort, collection[i])
       }
       sort.Sort(SortCmds(commandToSort))

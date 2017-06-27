@@ -68,7 +68,7 @@ Follow the instructions in [Configure CLI](./README.md#setting-up-the-openwhisk-
   function main({name:name='Serverless API'}) {
       return {
         body: new Buffer(JSON.stringify({payload:`Hello world ${name}`})).toString('base64'),
-        statusCode:200,
+        statusCode: 200,
         headers:{ 'Content-Type': 'application/json'}
       };
   }
@@ -149,7 +149,7 @@ Action: putBooks
   URL: https://${APIHOST}:9001/api/21ef035/club/books
 ```
 
-*Note:* APIs will be sorted alphabetically by default, first by Base path, then by Path (relative path), then by Verb. If we need to sort alphabetically by Action name, we can add the `-n` or `--sort-action` flags to do so.
+*Note:* APIs will be sorted alphabetically by default, first by `Base` path, then by `Path` (relative path), then by `Verb`. In order to sort alphabetically by Action name, add the `-n` or `--sort-action` flags.
 
 Now just for fun let's add a new book `JavaScript: The Good Parts` with a HTTP __POST__
 ```

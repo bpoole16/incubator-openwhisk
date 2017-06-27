@@ -314,6 +314,7 @@ var actionListCmd = &cobra.Command{
         }
 
         printList(actions)
+
         return nil
     },
 }
