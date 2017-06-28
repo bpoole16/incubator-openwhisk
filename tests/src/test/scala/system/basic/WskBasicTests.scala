@@ -48,7 +48,9 @@ class WskBasicTests
     behavior of "Wsk CLI"
 
     def buildCommandSeq(cmdType: String, cmdVerb: String, cmdName: String, size: Int): Seq[Seq[String]] = {
-        val result = Seq()
+        println("buildCommandSeq called")
+        var result = Seq[Seq[String]]()
+        var i = 0
             if (cmdType == "rule") {
                 for (i <- 1 to size by -1) {
                     result :+ buildCommandIndiv("trigger", cmdVerb, s"trigger_$cmdName$i")
@@ -56,16 +58,18 @@ class WskBasicTests
                     result :+ buildCommandIndiv(cmdType, cmdVerb, s"$cmdName$i")
                 }
             } else {
-                for (i <- 1 to size by -1) {
-                    result :+ buildCommandIndiv(cmdType, cmdVerb, s"$cmdName$i")
+                for (i <- size to 1 by -1) {
+                    result :+= buildCommandIndiv(cmdType, cmdVerb, s"$cmdName$i")
+                    println("buildCommandSeq: i:" + i + "\n\tresult: " + result)
                 }
             }
         result
     }
     def buildCommandIndiv(cmdType: String, cmdVerb: String, cmdName: String): Seq[String] = {
-        val result = Seq(cmdType, cmdVerb, cmdName)
+        var result = Seq(cmdType, cmdVerb, cmdName, "-i")
         if(cmdType == "action") {
-            result :+ Some(TestUtils.getTestActionFilename("empty.js"))
+            result :+= TestUtils.getTestActionFilename("empty.js")
+            println("buildCommandIndiv: result: " + result)
         } else {
             if(cmdType == "rule"){
                 result :+ s"trigger_$cmdName"
@@ -75,19 +79,37 @@ class WskBasicTests
         result
     }
     def compareSortedList(original: String, cmdName: String): Boolean = {
+        println("\ncompareSortedList:")
         val baseList = List(s"${cmdName}1", s"${cmdName}2", s"${cmdName}3")
+        println("baseList: " + baseList)
         val regex = s"${cmdName}[1-3]".r
         val testList = (regex.findAllMatchIn(original)).toList
+        println("testList: " + testList)
+        println(baseList.toString == testList.toString)
         baseList.toString == testList.toString
     }
     it should "return a list of alphabetized actions" in {
+        val tmpwskprops = File.createTempFile("wskprops", ".tmp")
+        val env = Map("WSK_CONFIG_FILE" -> tmpwskprops.getAbsolutePath())
         val actionName = "actionListTest"
         try {
-            val actions = buildCommandSeq("action", "create", actionName, 4)
-
+            val actions: Seq[Seq[String]] = buildCommandSeq("action", "create", actionName, 3)
+            println("actions: " + actions + "\n")
+            actions.foreach {
+                wsk.cli(_ ++ wskprops.overrides, expectedExitCode = DONTCARE_EXIT, env = env)
+            }
+            println("Before original")
+            val original = wsk.action.list().stdout
+            println("original: " + original.toString)
+            compareSortedList(original, actionName)
+        } finally {
+            val actions = buildCommandSeq("action", "delete", actionName, 4)
+            for (cmd <- actions) {
+                wsk.cli(cmd ++ wskprops.overrides, expectedExitCode = DONTCARE_EXIT)
+            }
         }
     }
-    it should "return a list of alphabetized actions/packages/triggers/rules" in withAssetCleaner(wskprops) {
+    /*it should "return a list of alphabetized actions/packages/triggers/rules" in withAssetCleaner(wskprops) {
         (wp, assetHelper) =>
             // Declare 3 actions, create them out of alphabetical order
             val actionName = "actionBasicTesting"
@@ -160,7 +182,7 @@ class WskBasicTests
             scalaSortedTrigger.toString shouldEqual listTrigger.toString
             scalaSortedRule.toString shouldEqual listRule.toString
 
-    }
+    }*/
 
     /*def genCommand(name: String, amount: Int) {
         for (i <- 1 to amount) {
