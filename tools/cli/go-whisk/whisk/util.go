@@ -31,6 +31,9 @@ import (
 // Sortable items are anything that needs to be sorted, listed, and printed.
 type Sortable interface {
     Compare(s Sortable) bool  // Used for defining how to sort a Sortable
+}
+
+type Printable interface {
     InfoToString() string     // Defines what information to print for a Sortable
 }
 

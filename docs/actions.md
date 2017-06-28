@@ -704,6 +704,7 @@ and so you should include them in your own `Package.swift`.
 - Upload it to OpenWhisk with the action name helloSwifty:
 =======
 This has created hello.zip in the same directory as hello.swift.
+
 -Upload it to OpenWhisk with the action name helloSwifty:
 >>>>>>> Updates based on comments
   ```

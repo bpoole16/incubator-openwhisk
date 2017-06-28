@@ -255,6 +255,14 @@ func (s SortCmds) Len() int { return len(s) }
 func (s SortCmds) Less(i,j int) bool { return s[i].Compare(s[j]) }
 func (s SortCmds) Swap(i,j int) { s[i], s[j] = s[j], s[i] }
 
+func toPrintable(sortable []whisk.Sortable) []whisk.Printable{
+    sortedPrintable := make([]whisk.Printable, len(sortable), len(sortable))
+    for i := range sortable {
+        sortedPrintable[i] = sortable[i].(whisk.Printable)
+    }
+    return sortedPrintable
+}
+
 // Prints the parameters/list for wsk xxxx list
 // Identifies type and then copies array into an array of interfaces(Sortable) to be sorted and printed
 // Param: Takes in an interace which contains an array of a command(Ex: []Action)
@@ -266,31 +274,31 @@ func printList(collection interface{}) {
             commandToSort = append(commandToSort, collection[i])
         }
         sort.Sort(SortCmds(commandToSort))
-        printCommandsList(commandToSort, "actions")
+        printCommandsList(toPrintable(commandToSort), "actions")
     case []whisk.Trigger:
       for i := range collection {
           commandToSort = append(commandToSort, collection[i])
       }
       sort.Sort(SortCmds(commandToSort))
-      printCommandsList(commandToSort, "triggers")
+      printCommandsList(toPrintable(commandToSort), "triggers")
     case []whisk.Package:
       for i := range collection {
           commandToSort = append(commandToSort, collection[i])
       }
       sort.Sort(SortCmds(commandToSort))
-      printCommandsList(commandToSort, "packages")
+      printCommandsList(toPrintable(commandToSort), "packages")
     case []whisk.Rule:
       for i := range collection {
         commandToSort = append(commandToSort, collection[i])
       }
       sort.Sort(SortCmds(commandToSort))
-      printCommandsList(commandToSort, "rules")
+      printCommandsList(toPrintable(commandToSort), "rules")
     case []whisk.Namespace:
       for i := range collection {
         commandToSort = append(commandToSort, collection[i])
       }
       sort.Sort(SortCmds(commandToSort))
-      printCommandsList(commandToSort, "namespaces")
+      printCommandsList(toPrintable(commandToSort), "namespaces")
     case []whisk.Activation:
         printActivationList(collection)
     case []whisk.ApiFilteredList:
@@ -298,13 +306,13 @@ func printList(collection interface{}) {
         commandToSort = append(commandToSort, collection[i])
       }
       sort.Sort(SortCmds(commandToSort))
-      printCommandsList(commandToSort, "")
+      printCommandsList(toPrintable(commandToSort), "")
     case []whisk.ApiFilteredRow:
       for i := range collection {
         commandToSort = append(commandToSort, collection[i])
       }
       sort.Sort(SortCmds(commandToSort))
-      printCommandsList(commandToSort, "")
+      printCommandsList(toPrintable(commandToSort), "")
 
     }
 }
@@ -345,7 +353,7 @@ func printSummary(collection interface{}) {
 // Param: Takes in a array of Sortable interface, and the name of the command
 //          being sent to it
 // **Note**: The name sould be an empty string for APIs.
-func printCommandsList(commands []whisk.Sortable, commandName string) {
+func printCommandsList(commands []whisk.Printable, commandName string) {
     if commandName != "" {
       fmt.Fprintf(color.Output, "%s\n", boldString(commandName))
     }

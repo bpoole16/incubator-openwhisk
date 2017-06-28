@@ -47,150 +47,6 @@ class WskBasicTests
 
     behavior of "Wsk CLI"
 
-    def buildCommandSeq(cmdType: String, cmdVerb: String, cmdName: String, size: Int): Seq[Seq[String]] = {
-        println("buildCommandSeq called")
-        var result = Seq[Seq[String]]()
-        var i = 0
-            if (cmdType == "rule") {
-                for (i <- 1 to size by -1) {
-                    result :+ buildCommandIndiv("trigger", cmdVerb, s"trigger_$cmdName$i")
-                    result :+ buildCommandIndiv("action", cmdVerb, s"action_$cmdName$i")
-                    result :+ buildCommandIndiv(cmdType, cmdVerb, s"$cmdName$i")
-                }
-            } else {
-                for (i <- size to 1 by -1) {
-                    result :+= buildCommandIndiv(cmdType, cmdVerb, s"$cmdName$i")
-                    println("buildCommandSeq: i:" + i + "\n\tresult: " + result)
-                }
-            }
-        result
-    }
-    def buildCommandIndiv(cmdType: String, cmdVerb: String, cmdName: String): Seq[String] = {
-        var result = Seq(cmdType, cmdVerb, cmdName, "-i")
-        if(cmdType == "action") {
-            result :+= TestUtils.getTestActionFilename("empty.js")
-            println("buildCommandIndiv: result: " + result)
-        } else {
-            if(cmdType == "rule"){
-                result :+ s"trigger_$cmdName"
-                result :+ s"action_$cmdName"
-            }
-        }
-        result
-    }
-    def compareSortedList(original: String, cmdName: String): Boolean = {
-        println("\ncompareSortedList:")
-        val baseList = List(s"${cmdName}1", s"${cmdName}2", s"${cmdName}3")
-        println("baseList: " + baseList)
-        val regex = s"${cmdName}[1-3]".r
-        val testList = (regex.findAllMatchIn(original)).toList
-        println("testList: " + testList)
-        println(baseList.toString == testList.toString)
-        baseList.toString == testList.toString
-    }
-    it should "return a list of alphabetized actions" in {
-        val tmpwskprops = File.createTempFile("wskprops", ".tmp")
-        val env = Map("WSK_CONFIG_FILE" -> tmpwskprops.getAbsolutePath())
-        val actionName = "actionListTest"
-        try {
-            val actions: Seq[Seq[String]] = buildCommandSeq("action", "create", actionName, 3)
-            println("actions: " + actions + "\n")
-            actions.foreach {
-                wsk.cli(_ ++ wskprops.overrides, expectedExitCode = DONTCARE_EXIT, env = env)
-            }
-            println("Before original")
-            val original = wsk.action.list().stdout
-            println("original: " + original.toString)
-            compareSortedList(original, actionName)
-        } finally {
-            val actions = buildCommandSeq("action", "delete", actionName, 4)
-            for (cmd <- actions) {
-                wsk.cli(cmd ++ wskprops.overrides, expectedExitCode = DONTCARE_EXIT)
-            }
-        }
-    }
-    /*it should "return a list of alphabetized actions/packages/triggers/rules" in withAssetCleaner(wskprops) {
-        (wp, assetHelper) =>
-            // Declare 3 actions, create them out of alphabetical order
-            val actionName = "actionBasicTesting"
-            val actions = buildCommandSeq("action", "create", actionName, 4)
-            for (i <- 4 to 1 by -1) {
-                val name = s"$actionName$i"
-                assetHelper.withCleaner(wsk.action, name) {
-                    (action, _) =>
-                        action.create(name, Some(TestUtils.getTestActionFilename("empty.js")))
-                }
-            }
-            // Declare 3 packages, create them out of alphabetical order
-            val packageName = "packageBasicTesting"
-            for (i <- 4 to 1 by -1) {
-                val name = s"$packageName$i"
-                assetHelper.withCleaner(wsk.pkg, name) {
-                    (pkg, name) =>
-                        pkg.create(name)
-                }
-            }
-            // Declare 3 triggers, create them out of alphabetical order
-            val triggerNameA = "triggerBasicTestingA1"
-            val triggerNameB = "triggerBasicTestingA2"
-            val triggerNameC = "triggerBasicTestingB1"
-            assetHelper.withCleaner(wsk.trigger, triggerNameB) {
-                (trigger, _) => trigger.create(triggerNameB)
-            }
-            assetHelper.withCleaner(wsk.trigger, triggerNameC) {
-                (trigger, _) => trigger.create(triggerNameC)
-            }
-            assetHelper.withCleaner(wsk.trigger, triggerNameA) {
-                (trigger, _) => trigger.create(triggerNameA)
-            }
-            // Declare 3 rules, create them out of alphabetical order
-            val ruleNameA = "ruleBasicTestingA1"
-            val ruleNameB = "ruleBasicTestingA2"
-            val ruleNameC = "ruleBasicTestingB1"
-            assetHelper.withCleaner(wsk.rule, ruleNameB) {
-                (rule, ruleNameB) =>
-                    rule.create(ruleNameB, trigger = triggerNameA, action = "actionBasicTesting1")
-            }
-            assetHelper.withCleaner(wsk.rule, ruleNameC) {
-                (rule, ruleNameC) =>
-                    rule.create(ruleNameC, trigger = triggerNameA, action = "actionBasicTesting1")
-            }
-            assetHelper.withCleaner(wsk.rule, ruleNameA) {
-                (rule, ruleNameA) =>
-                    rule.create(ruleNameA, trigger = triggerNameA, action = "actionBasicTesting1")
-            }
-            // Get lists as they appear with list command
-            val original = wsk.namespace.get(expectedExitCode = SUCCESS_EXIT)(WskProps()).stdout
-            // Create list with command names in correct order
-            val scalaSortedAction = List("actionBasicTesting1", "actionBasicTesting2", "actionBasicTesting3")
-            val scalaSortedPackage = List("packageBasicTesting1", "packageBasicTesting2", "packageBasicTesting3")
-            val scalaSortedTrigger = List(triggerNameA, triggerNameB, triggerNameC)
-            val scalaSortedRule = List(ruleNameA, ruleNameB, ruleNameC)
-            // Filter out everything not previously created
-            val regexAction = "actionBasicTesting[A,B][1,2]".r
-            val regexPackage = "packageBasicTesting[A,B][1,2]".r
-            val regexTrigger = "triggerBasicTesting[A,B][1,2]".r
-            val regexRule = "ruleBasicTesting[A,B][1,2]".r
-            // Retrieve command names into list as found in original
-            val listAction  = (regexAction.findAllMatchIn(original)).toList
-            val listPackage  = (regexPackage.findAllMatchIn(original)).toList
-            val listTrigger  = (regexTrigger.findAllMatchIn(original)).toList
-            val listRule  = (regexRule.findAllMatchIn(original)).toList
-
-            scalaSortedAction.toString shouldEqual listAction.toString
-            scalaSortedPackage.toString shouldEqual listPackage.toString
-            scalaSortedTrigger.toString shouldEqual listTrigger.toString
-            scalaSortedRule.toString shouldEqual listRule.toString
-
-    }*/
-
-    /*def genCommand(name: String, amount: Int) {
-        for (i <- 1 to amount) {
-            val tmp = s"$nameBasicTest$i"
-            name.create(tmp)
-        }
-    }*/
-
     it should "confirm wsk exists" in {
         Wsk.exists
     }
@@ -352,6 +208,27 @@ class WskBasicTests
         val name = "nonexistentPackage"
         val stderr = wsk.pkg.get(name, expectedExitCode = NOT_FOUND).stderr
         stderr should include regex (s"""Unable to get package '$name': The requested resource does not exist. \\(code \\d+\\)""")
+    }
+
+    it should "return a list of alphabetized packages" in withAssetCleaner(wskprops) {
+        (wp, assetHelper) =>
+            // Declare 3 packages, create them out of alphabetical order
+            val packageName = "activationBasicTesting"
+            for (i <- 3 to 1 by -1) {
+                val name = s"$packageName$i"
+                assetHelper.withCleaner(wsk.pkg, name) {
+                    (pkg, name) =>
+                        pkg.create(name)
+                }
+            }
+            val original = wsk.pkg.list().stdout
+            // Create list with package names in correct order
+            val scalaSorted = List(s"${packageName}1", s"${packageName}2", s"${packageName}3")
+            // Filter out everything not previously created
+            val regex = s"${packageName}[1-3]".r
+            // Retrieve package names into list as found in original
+            val list  = (regex.findAllMatchIn(original)).toList
+            scalaSorted.toString shouldEqual list.toString
     }
 
     behavior of "Wsk Action CLI"
@@ -636,6 +513,27 @@ class WskBasicTests
             wsk.action.get(name).stdout should not include (""""code"""")
     }
 
+    it should "return a list of alphabetized actions" in withAssetCleaner(wskprops) {
+        (wp, assetHelper) =>
+            // Declare 4 actions, create them out of alphabetical order
+            val actionName = "activationBasicTesting"
+            for (i <- 3 to 1 by -1) {
+                val name = s"$actionName$i"
+                assetHelper.withCleaner(wsk.action, name) {
+                    (action, name) =>
+                        action.create(name, defaultAction)
+                }
+            }
+            val original = wsk.action.list().stdout
+            // Create list with action names in correct order
+            val scalaSorted = List(s"${actionName}1", s"${actionName}2", s"${actionName}3")
+            // Filter out everything not previously created
+            val regex = s"${actionName}[1-3]".r
+            // Retrieve action names into list as found in original
+            val list  = (regex.findAllMatchIn(original)).toList
+            scalaSorted.toString shouldEqual list.toString
+    }
+
     behavior of "Wsk Trigger CLI"
 
     it should "create, update, get, fire and list trigger" in withAssetCleaner(wskprops) {
@@ -799,6 +697,27 @@ class WskBasicTests
         stderr should include regex (s"""Unable to fire trigger '$name': The requested resource does not exist. \\(code \\d+\\)""")
     }
 
+    it should "return a list of alphabetized triggers" in withAssetCleaner(wskprops) {
+        (wp, assetHelper) =>
+            // Declare 4 triggers, create them out of alphabetical order
+            val triggerName = "activationBasicTesting"
+            for (i <- 3 to 1 by -1) {
+                val name = s"$triggerName$i"
+                assetHelper.withCleaner(wsk.trigger, name) {
+                    (trigger, name) =>
+                        trigger.create(name)
+                }
+            }
+            val original = wsk.trigger.list().stdout
+            // Create list with trigger names in correct order
+            val scalaSorted = List(s"${triggerName}1", s"${triggerName}2", s"${triggerName}3")
+            // Filter out everything not previously created
+            val regex = s"${triggerName}[1-3]".r
+            // Retrieve trigger names into list as found in original
+            val list  = (regex.findAllMatchIn(original)).toList
+            scalaSorted.toString shouldEqual list.toString
+    }
+
     behavior of "Wsk Rule CLI"
 
     it should "create rule, get rule, update rule and list rule" in withAssetCleaner(wskprops) {
@@ -956,6 +875,37 @@ class WskBasicTests
         val name = "nonexistentRule"
         val stderr = wsk.rule.get(name, expectedExitCode = NOT_FOUND).stderr
         stderr should include regex (s"""Unable to get rule '$name': The requested resource does not exist. \\(code \\d+\\)""")
+    }
+
+    it should "return a list of alphabetized rules" in withAssetCleaner(wskprops) {
+        (wp, assetHelper) =>
+            // Declare a trigger and an action for the purposes of creating rules
+            val triggerName = "listRulesTrigger"
+            val actionName = "listRulesAction"
+
+            assetHelper.withCleaner(wsk.trigger, triggerName) {
+                (trigger, name) => trigger.create(name)
+            }
+            assetHelper.withCleaner(wsk.action, actionName) {
+                (action, name) => action.create(name, defaultAction)
+            }
+            // Declare 3 rules, create them out of alphabetical order
+            val ruleName = "activationBasicTesting"
+            for (i <- 3 to 1 by -1) {
+                val name = s"$ruleName$i"
+                assetHelper.withCleaner(wsk.rule, name) {
+                    (rule, name) =>
+                        rule.create(name, trigger = triggerName, action = actionName)
+                }
+            }
+            val original = wsk.rule.list().stdout
+            // Create list with rule names in correct order
+            val scalaSorted = List(s"${ruleName}1", s"${ruleName}2", s"${ruleName}3")
+            // Filter out everything not previously created
+            val regex = s"${ruleName}[1-3]".r
+            // Retrieve rule names into list as found in original
+            val list  = (regex.findAllMatchIn(original)).toList
+            scalaSorted.toString shouldEqual list.toString
     }
 
     behavior of "Wsk Namespace CLI"
