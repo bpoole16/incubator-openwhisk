@@ -34,6 +34,7 @@ type Sortable interface {
 }
 
 type Printable interface {
+	HeaderToString() string   // Defines what information to print for the header of a Sorable
     InfoToString() string     // Defines what information to print for a Sortable
 }
 

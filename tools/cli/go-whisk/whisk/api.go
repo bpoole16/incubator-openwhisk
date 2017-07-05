@@ -255,6 +255,10 @@ func(api ApiFilteredList) Compare(sortable Sortable) bool{
   return apiString < compareString
 }
 
+func(api ApiFilteredList) HeaderToString() string {
+	return ""
+}
+
 // InfoToString() returns a compound string of required parameters for printing
 //   from CLI command `wsk api list` or `wsk api-experimental list`.
 // ***Method of type Sortable***
@@ -293,6 +297,10 @@ func(api ApiFilteredRow) Compare(sortable Sortable) bool{
   }
 
   return apiString < compareString
+}
+
+func(api ApiFilteredRow) HeaderToString() string {
+	return fmt.Sprintf("%s", fmt.Sprintf(api.FmtString, "Action", "Verb", "API Name", "URL"))
 }
 
 // InfoToString() returns a compound string of required parameters for printing

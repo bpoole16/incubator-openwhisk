@@ -273,48 +273,42 @@ func printList(collection interface{}) {
         for i := range collection {
             commandToSort = append(commandToSort, collection[i])
         }
-        sort.Sort(SortCmds(commandToSort))
-        printCommandsList(toPrintable(commandToSort), "actions")
     case []whisk.Trigger:
       for i := range collection {
           commandToSort = append(commandToSort, collection[i])
       }
-      sort.Sort(SortCmds(commandToSort))
-      printCommandsList(toPrintable(commandToSort), "triggers")
     case []whisk.Package:
       for i := range collection {
           commandToSort = append(commandToSort, collection[i])
       }
-      sort.Sort(SortCmds(commandToSort))
-      printCommandsList(toPrintable(commandToSort), "packages")
     case []whisk.Rule:
       for i := range collection {
         commandToSort = append(commandToSort, collection[i])
       }
-      sort.Sort(SortCmds(commandToSort))
-      printCommandsList(toPrintable(commandToSort), "rules")
     case []whisk.Namespace:
       for i := range collection {
         commandToSort = append(commandToSort, collection[i])
       }
-      sort.Sort(SortCmds(commandToSort))
-      printCommandsList(toPrintable(commandToSort), "namespaces")
     case []whisk.Activation:
         printActivationList(collection)
     case []whisk.ApiFilteredList:
       for i := range collection {
         commandToSort = append(commandToSort, collection[i])
       }
-      sort.Sort(SortCmds(commandToSort))
-      printCommandsList(toPrintable(commandToSort), "")
     case []whisk.ApiFilteredRow:
       for i := range collection {
         commandToSort = append(commandToSort, collection[i])
       }
-      sort.Sort(SortCmds(commandToSort))
-      printCommandsList(toPrintable(commandToSort), "")
-
     }
+	sort.Sort(SortCmds(commandToSort))
+	printCommandsList(toPrintable(commandToSort), makeDefaultHeader(collection))
+}
+
+func makeDefaultHeader(collection interface{}) string {
+	defaultHeader := reflect.TypeOf(collection).String()
+	defaultHeader = strings.ToLower(defaultHeader[8:] + "s")
+	return defaultHeader
+
 }
 
 func printFullList(collection interface{}) {
@@ -353,13 +347,15 @@ func printSummary(collection interface{}) {
 // Param: Takes in a array of Sortable interface, and the name of the command
 //          being sent to it
 // **Note**: The name sould be an empty string for APIs.
-func printCommandsList(commands []whisk.Printable, commandName string) {
-    if commandName != "" {
-      fmt.Fprintf(color.Output, "%s\n", boldString(commandName))
-    }
-    for i := range commands {
-      fmt.Print(commands[i].InfoToString())
-    }
+func printCommandsList(commands []whisk.Printable, defaultHeader string) {
+	if len(commands) != 0 {
+		fmt.Fprint(color.Output, commands[0].HeaderToString())
+		for i := range commands {
+		  fmt.Print(commands[i].InfoToString())
+		}
+	} else {
+		fmt.Fprintf(color.Output, "%s\n", defaultHeader)
+	}
 }
 
 func printActivationList(activations []whisk.Activation) {

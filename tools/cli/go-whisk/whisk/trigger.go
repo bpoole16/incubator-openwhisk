@@ -23,6 +23,7 @@ import (
     "net/url"
     "../wski18n"
     "strings"
+	"github.com/fatih/color"
 )
 
 type TriggerService struct {
@@ -59,6 +60,11 @@ func(trigger Trigger) Compare(sortable Sortable) bool {
         triggerToCompare.Name))
 
     return triggerString < compareString
+}
+
+func(trigger Trigger) HeaderToString() string {
+	var boldString = color.New(color.Bold).SprintFunc()
+	return fmt.Sprintf("%s\n", boldString("triggers"))
 }
 
 // InfoToString() returns a compound string of required parameters for printing

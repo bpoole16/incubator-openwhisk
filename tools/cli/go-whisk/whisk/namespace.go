@@ -22,6 +22,7 @@ import (
     "../wski18n"
     "strings"
     "fmt"
+	"github.com/fatih/color"
 )
 
 type Namespace struct {
@@ -51,6 +52,11 @@ func(namespace Namespace) Compare(sortable Sortable) bool {
     compareString := strings.ToLower(namespaceToCompare.Name)
 
     return namespaceString < compareString
+}
+
+func(namespace Namespace) HeaderToString() string {
+	var boldString = color.New(color.Bold).SprintFunc()
+	return fmt.Sprintf("%s\n", boldString("namespaces"))
 }
 
 // InfoToString() returns a compound string of required parameters for printing

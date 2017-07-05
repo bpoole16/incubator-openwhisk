@@ -23,6 +23,7 @@ import (
     "net/url"
     "../wski18n"
     "strings"
+	"github.com/fatih/color"
 )
 
 type ActionService struct {
@@ -69,6 +70,11 @@ func(action Action) Compare(sortable Sortable) bool{
       actionToCompare.Name))
 
   return actionString < compareString
+}
+
+func(action Action) HeaderToString() string {
+	var boldString = color.New(color.Bold).SprintFunc()
+	return fmt.Sprintf("%s\n", boldString("actions"))
 }
 
 // InfoToString() returns a compound string of required parameters for printing

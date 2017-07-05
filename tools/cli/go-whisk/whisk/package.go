@@ -23,6 +23,7 @@ import (
     "errors"
     "../wski18n"
     "strings"
+	"github.com/fatih/color"
 )
 
 type PackageService struct {
@@ -98,6 +99,11 @@ func(xPackage Package) Compare(sortable Sortable) bool{
       packageToCompare.Name))
 
   return packageString < compareString
+}
+
+func(xPackage Package) HeaderToString() string {
+	var boldString = color.New(color.Bold).SprintFunc()
+	return fmt.Sprintf("%s\n", boldString("packages"))
 }
 
 // InfoToString() returns a compound string of required parameters for printing

@@ -23,6 +23,7 @@ import (
     "errors"
     "net/url"
     "../wski18n"
+	"github.com/fatih/color"
 )
 
 type RuleService struct {
@@ -58,6 +59,11 @@ func(rule Rule) Compare(sortable Sortable) bool{
       ruleToCompare.Name))
 
   return ruleString < compareString
+}
+
+func(rule Rule) HeaderToString() string {
+	var boldString = color.New(color.Bold).SprintFunc()
+	return fmt.Sprintf("%s\n", boldString("rules"))
 }
 
 // InfoToString() returns a compound string of required parameters for printing
