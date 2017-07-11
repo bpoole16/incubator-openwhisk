@@ -107,7 +107,7 @@ var activationGetCmd = &cobra.Command{
     SilenceErrors:  true,
     PreRunE: setupClientConfig,
     RunE: func(cmd *cobra.Command, args []string) error {
-        var field string
+        var field = flags.activation.fieldFilter
         var err error
 
         if args, err = lastFlag(args); err != nil {  // Checks if any errors occured in lastFlag(args)
@@ -122,9 +122,7 @@ var activationGetCmd = &cobra.Command{
             return whiskErr
         }
 
-        if len(args) > 1 {
-            field = args[1]
-
+        if field != "" {
             if !fieldExists(&whisk.Activation{}, field) {
                 errMsg := wski18n.T("Invalid field filter '{{.arg}}'.", map[string]interface{}{"arg": field})
                 whiskErr := whisk.MakeWskError(errors.New(errMsg), whisk.EXITCODE_ERR_GENERAL,
@@ -399,6 +397,7 @@ func init() {
 
     activationGetCmd.Flags().BoolVarP(&flags.common.summary, "summary", "s", false, wski18n.T("summarize activation details"))
     activationGetCmd.Flags().BoolVarP(&flags.activation.last, "last", "l", false, wski18n.T("retrieves the last activation"))
+    activationGetCmd.Flags().StringVarP(&flags.activation.fieldFilter, "field-filter", "f", "", wski18n.T("filter by field"))
 
     activationLogsCmd.Flags().BoolVarP(&flags.activation.last, "last", "l", false, wski18n.T("retrieves the last activation"))
 

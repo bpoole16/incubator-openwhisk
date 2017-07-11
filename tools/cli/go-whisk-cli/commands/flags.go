@@ -89,6 +89,7 @@ type Flags struct {
         sinceDays       int
         exit            int
         last            bool
+        fieldFilter     string
     }
 
     // rule

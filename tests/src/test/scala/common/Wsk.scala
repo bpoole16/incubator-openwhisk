@@ -569,7 +569,7 @@ class WskActivation()
             implicit wp: WskProps): RunResult = {
         val params =
           { activationId map { a => Seq(a) } getOrElse Seq() } ++
-          { fieldFilter map { f => Seq(f) } getOrElse Seq() } ++
+          val params = { fieldFilter map { f => Seq("--field-filter", f) } getOrElse Seq() } ++
           { last map { l => Seq("--last") } getOrElse Seq() }
         cli(wp.overrides ++ Seq(noun, "get", "--auth", wp.authKey) ++ params, expectedExitCode)
     }
