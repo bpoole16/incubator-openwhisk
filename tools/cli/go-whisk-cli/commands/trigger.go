@@ -293,7 +293,7 @@ var triggerGetCmd = &cobra.Command{
     PreRunE: setupClientConfig,
     RunE: func(cmd *cobra.Command, args []string) error {
         var err error
-        var field string
+        var field = flags.common.fieldFilter
         var qualifiedName QualifiedName
 
         if whiskErr := checkArgs(args, 1, 2, "Trigger get", wski18n.T("A trigger name is required.")); whiskErr != nil {
@@ -301,8 +301,14 @@ var triggerGetCmd = &cobra.Command{
         }
 
         if len(args) > 1 {
-            field = args[1]
-
+            field  = args[1]
+            if !fieldExists(&whisk.Trigger{}, field) {    // Check for param field filter (precedence given to param)
+                errMsg := wski18n.T("Invalid field filter '{{.arg}}'.", map[string]interface{}{"arg": field})
+                whiskErr := whisk.MakeWskError(errors.New(errMsg), whisk.EXITCODE_ERR_GENERAL,
+                    whisk.DISPLAY_MSG, whisk.NO_DISPLAY_USAGE)
+                return whiskErr
+            }
+        } else if len(field) > 0 {    // Check for flag field filter
             if !fieldExists(&whisk.Trigger{}, field) {
                 errMsg := wski18n.T("Invalid field filter '{{.arg}}'.", map[string]interface{}{"arg": field})
                 whiskErr := whisk.MakeWskError(errors.New(errMsg), whisk.EXITCODE_ERR_GENERAL,
@@ -504,6 +510,7 @@ func init() {
     triggerUpdateCmd.Flags().StringVarP(&flags.common.paramFile, "param-file", "P", "", wski18n.T("`FILE` containing parameter values in JSON format"))
 
     triggerGetCmd.Flags().BoolVarP(&flags.trigger.summary, "summary", "s", false, wski18n.T("summarize trigger details"))
+    triggerGetCmd.Flags().StringVarP(&flags.common.fieldFilter, "field-filter", "f", "", wski18n.T("filter by field"))
 
     triggerFireCmd.Flags().StringSliceVarP(&flags.common.param, "param", "p", []string{}, wski18n.T("parameter values in `KEY VALUE` format"))
     triggerFireCmd.Flags().StringVarP(&flags.common.paramFile, "param-file", "P", "", wski18n.T("`FILE` containing parameter values in JSON format"))

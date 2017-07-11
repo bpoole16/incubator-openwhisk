@@ -248,7 +248,7 @@ var ruleGetCmd = &cobra.Command{
     PreRunE: setupClientConfig,
     RunE: func(cmd *cobra.Command, args []string) error {
         var err error
-        var field string
+        var field = flags.common.fieldFilter
         var qualifiedName QualifiedName
 
         if whiskErr := checkArgs(args, 1, 2, "Rule get", wski18n.T("A rule name is required.")); whiskErr != nil {
@@ -256,9 +256,15 @@ var ruleGetCmd = &cobra.Command{
         }
 
         if len(args) > 1 {
-            field = args[1]
-
-            if !fieldExists(&whisk.Rule{}, field){
+            field  = args[1]
+            if !fieldExists(&whisk.Rule{}, field) {    // Check for param field filter (precedence given to param)
+                errMsg := wski18n.T("Invalid field filter '{{.arg}}'.", map[string]interface{}{"arg": field})
+                whiskErr := whisk.MakeWskError(errors.New(errMsg), whisk.EXITCODE_ERR_GENERAL,
+                    whisk.DISPLAY_MSG, whisk.NO_DISPLAY_USAGE)
+                return whiskErr
+            }
+        } else if len(field) > 0 {    // Check for flag field filter
+            if !fieldExists(&whisk.Rule{}, field) {
                 errMsg := wski18n.T("Invalid field filter '{{.arg}}'.", map[string]interface{}{"arg": field})
                 whiskErr := whisk.MakeWskError(errors.New(errMsg), whisk.EXITCODE_ERR_GENERAL,
                     whisk.DISPLAY_MSG, whisk.NO_DISPLAY_USAGE)
@@ -398,6 +404,7 @@ func init() {
     ruleDeleteCmd.Flags().BoolVar(&flags.rule.disable, "disable", false, wski18n.T("automatically disable rule before deleting it"))
 
     ruleGetCmd.Flags().BoolVarP(&flags.rule.summary, "summary", "s", false, wski18n.T("summarize rule details"))
+    ruleGetCmd.Flags().StringVarP(&flags.common.fieldFilter, "field-filter", "f", "", wski18n.T("filter by field"))
 
     ruleListCmd.Flags().IntVarP(&flags.common.skip, "skip", "s", 0, wski18n.T("exclude the first `SKIP` number of rules from the result"))
     ruleListCmd.Flags().IntVarP(&flags.common.limit, "limit", "l", 30, wski18n.T("only return `LIMIT` number of rules from the collection"))

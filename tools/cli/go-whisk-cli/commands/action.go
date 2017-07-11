@@ -202,7 +202,7 @@ var actionGetCmd = &cobra.Command{
     PreRunE:       setupClientConfig,
     RunE: func(cmd *cobra.Command, args []string) error {
         var err error
-        var field string
+        var field = flags.common.fieldFilter
         var action *whisk.Action
         var qualifiedName QualifiedName
 
@@ -210,9 +210,13 @@ var actionGetCmd = &cobra.Command{
             return whiskErr
         }
 
-        if !flags.action.url && !flags.common.summary && len(args) > 1 {
+        if !flags.action.url && !flags.common.summary && len(args) > 1 {    // Check for param field filter (precedence given to param)
             field = args[1]
 
+            if !fieldExists(&whisk.Action{}, field) {
+                return invalidFieldFilterError(field)
+            }
+        }  else if !flags.action.url && !flags.common.summary && len(field) > 0 {    // Check for flag field filter
             if !fieldExists(&whisk.Action{}, field) {
                 return invalidFieldFilterError(field)
             }
@@ -931,6 +935,7 @@ func init() {
 
     actionGetCmd.Flags().BoolVarP(&flags.common.summary, "summary", "s", false, wski18n.T("summarize action details"))
     actionGetCmd.Flags().BoolVarP(&flags.action.url, "url", "r", false, wski18n.T("get action url"))
+    actionGetCmd.Flags().StringVarP(&flags.common.fieldFilter, "field-filter", "f", "", wski18n.T("filter by field"))
 
     actionListCmd.Flags().IntVarP(&flags.common.skip, "skip", "s", 0, wski18n.T("exclude the first `SKIP` number of actions from the result"))
     actionListCmd.Flags().IntVarP(&flags.common.limit, "limit", "l", 30, wski18n.T("only return `LIMIT` number of actions from the collection"))

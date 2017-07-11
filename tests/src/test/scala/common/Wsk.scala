@@ -174,7 +174,7 @@ trait ListOrGetFromCollection extends FullyQualifiedNames {
         val params = Seq(noun, "get", "--auth", wp.authKey) ++
             Seq(fqn(name)) ++
             { if (summary) Seq("--summary") else Seq() } ++
-            { fieldFilter map { f => Seq(f) } getOrElse Seq() } ++
+            { fieldFilter map { f => Seq("--field-filter", f) } getOrElse Seq() } ++
             { url map { u => Seq("--url") } getOrElse Seq() }
 
         cli(wp.overrides ++ params, expectedExitCode)
@@ -569,7 +569,7 @@ class WskActivation()
             implicit wp: WskProps): RunResult = {
         val params =
           { activationId map { a => Seq(a) } getOrElse Seq() } ++
-          val params = { fieldFilter map { f => Seq("--field-filter", f) } getOrElse Seq() } ++
+          { fieldFilter map { f => Seq("--field-filter", f) } getOrElse Seq() } ++
           { last map { l => Seq("--last") } getOrElse Seq() }
         cli(wp.overrides ++ Seq(noun, "get", "--auth", wp.authKey) ++ params, expectedExitCode)
     }

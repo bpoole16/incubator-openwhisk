@@ -59,6 +59,7 @@ type Flags struct {
         feed        string  // name of feed
         detail      bool
         format      string
+        fieldFilter string
     }
 
     property struct {
@@ -89,7 +90,6 @@ type Flags struct {
         sinceDays       int
         exit            int
         last            bool
-        fieldFilter     string
     }
 
     // rule

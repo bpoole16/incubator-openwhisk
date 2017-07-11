@@ -274,7 +274,7 @@ var packageGetCmd = &cobra.Command{
   PreRunE:       setupClientConfig,
   RunE: func(cmd *cobra.Command, args []string) error {
     var err error
-    var field string
+    var field = flags.common.fieldFilter
     var qualifiedName QualifiedName
 
     if whiskErr := checkArgs(args, 1, 2, "Package get", wski18n.T("A package name is required.")); whiskErr != nil {
@@ -282,14 +282,20 @@ var packageGetCmd = &cobra.Command{
     }
 
     if len(args) > 1 {
-      field = args[1]
-
-      if !fieldExists(&whisk.Package{}, field) {
-        errMsg := wski18n.T("Invalid field filter '{{.arg}}'.", map[string]interface{}{"arg": field})
-        whiskErr := whisk.MakeWskError(errors.New(errMsg), whisk.EXITCODE_ERR_GENERAL,
-          whisk.DISPLAY_MSG, whisk.NO_DISPLAY_USAGE)
-        return whiskErr
-      }
+        field  = args[1]
+        if !fieldExists(&whisk.Package{}, field) {    // Check for param field filter (precedence given to param)
+            errMsg := wski18n.T("Invalid field filter '{{.arg}}'.", map[string]interface{}{"arg": field})
+            whiskErr := whisk.MakeWskError(errors.New(errMsg), whisk.EXITCODE_ERR_GENERAL,
+                whisk.DISPLAY_MSG, whisk.NO_DISPLAY_USAGE)
+            return whiskErr
+        }
+    } else if len(field) > 0 {    // Check for flag field filter
+        if !fieldExists(&whisk.Package{}, field) {
+            errMsg := wski18n.T("Invalid field filter '{{.arg}}'.", map[string]interface{}{"arg": field})
+            whiskErr := whisk.MakeWskError(errors.New(errMsg), whisk.EXITCODE_ERR_GENERAL,
+                whisk.DISPLAY_MSG, whisk.NO_DISPLAY_USAGE)
+            return whiskErr
+        }
     }
 
     if qualifiedName, err = parseQualifiedName(args[0]); err != nil {
@@ -522,6 +528,7 @@ func init() {
   packageUpdateCmd.Flags().StringVar(&flags.common.shared, "shared", "", wski18n.T("package visibility `SCOPE`; yes = shared, no = private"))
 
   packageGetCmd.Flags().BoolVarP(&flags.common.summary, "summary", "s", false, wski18n.T("summarize package details"))
+  packageGetCmd.Flags().StringVarP(&flags.common.fieldFilter, "field-filter", "f", "", wski18n.T("filter by field"))
 
   packageBindCmd.Flags().StringSliceVarP(&flags.common.annotation, "annotation", "a", []string{}, wski18n.T("annotation values in `KEY VALUE` format"))
   packageBindCmd.Flags().StringVarP(&flags.common.annotFile, "annotation-file", "A", "", wski18n.T("`FILE` containing annotation values in JSON format"))

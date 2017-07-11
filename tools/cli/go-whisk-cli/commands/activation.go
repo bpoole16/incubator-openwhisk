@@ -107,7 +107,7 @@ var activationGetCmd = &cobra.Command{
     SilenceErrors:  true,
     PreRunE: setupClientConfig,
     RunE: func(cmd *cobra.Command, args []string) error {
-        var field = flags.activation.fieldFilter
+        var field = flags.common.fieldFilter
         var err error
 
         if args, err = lastFlag(args); err != nil {  // Checks if any errors occured in lastFlag(args)
@@ -121,8 +121,16 @@ var activationGetCmd = &cobra.Command{
                 wski18n.T("An activation ID is required.")); whiskErr != nil {
             return whiskErr
         }
-
-        if field != "" {
+        //
+        if len(args) > 1 {    // Check for param field filter (precedence given to param)
+            field  = args[1]
+            if !fieldExists(&whisk.Activation{}, field) {
+                errMsg := wski18n.T("Invalid field filter '{{.arg}}'.", map[string]interface{}{"arg": field})
+                whiskErr := whisk.MakeWskError(errors.New(errMsg), whisk.EXITCODE_ERR_GENERAL,
+                    whisk.DISPLAY_MSG, whisk.NO_DISPLAY_USAGE)
+                return whiskErr
+            }
+        } else if len(field) > 0 {    // Check for flag field filter
             if !fieldExists(&whisk.Activation{}, field) {
                 errMsg := wski18n.T("Invalid field filter '{{.arg}}'.", map[string]interface{}{"arg": field})
                 whiskErr := whisk.MakeWskError(errors.New(errMsg), whisk.EXITCODE_ERR_GENERAL,
@@ -397,7 +405,7 @@ func init() {
 
     activationGetCmd.Flags().BoolVarP(&flags.common.summary, "summary", "s", false, wski18n.T("summarize activation details"))
     activationGetCmd.Flags().BoolVarP(&flags.activation.last, "last", "l", false, wski18n.T("retrieves the last activation"))
-    activationGetCmd.Flags().StringVarP(&flags.activation.fieldFilter, "field-filter", "f", "", wski18n.T("filter by field"))
+    activationGetCmd.Flags().StringVarP(&flags.common.fieldFilter, "field-filter", "f", "", wski18n.T("filter by field"))
 
     activationLogsCmd.Flags().BoolVarP(&flags.activation.last, "last", "l", false, wski18n.T("retrieves the last activation"))
 
