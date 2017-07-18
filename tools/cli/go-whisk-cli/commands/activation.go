@@ -24,6 +24,7 @@ import (
     "os/signal"
     "syscall"
     "time"
+    "regexp"
 
     "../../go-whisk/whisk"
     "../wski18n"
@@ -134,6 +135,8 @@ var activationGetCmd = &cobra.Command{
         }
 
         id := args[0]
+        isId := isActivationId(id)
+        fmt.Println(isId)
         activation, _, err := client.Activations.Get(id)
         if err != nil {
             whisk.Debug(whisk.DbgError, "client.Activations.Get(%s) failed: %s\n", id, err)
@@ -267,13 +270,33 @@ func lastFlag(args []string) ([]string, error) {
             whisk.Debug(whisk.DbgInfo, "Appending most recent activation ID(%s) into args\n", activations[0].ActivationID)
             args = append(args, activations[0].ActivationID)
         } else {
-                whisk.Debug(whisk.DbgInfo, "Appending most recent activation ID(%s) into args\n", activations[0].ActivationID)
-                args = append(args, activations[0].ActivationID)
-                whisk.Debug(whisk.DbgInfo, "Allocating appended ID to correct position in args\n")
-                args[0], args[len(args) - 1] = args[len(args) - 1], args[0]    // IDs should be located at args[0], if 1 or more arguments are given ID has to be moved to args[0]
+                isId := isActivationId(args[0])    //test
+                if isId == false {
+                    whisk.Debug(whisk.DbgInfo, "Appending most recent activation ID(%s) into args\n", activations[0].ActivationID)
+                    args = append(args, activations[0].ActivationID)
+                    whisk.Debug(whisk.DbgInfo, "Allocating appended ID to correct position in args\n")
+                    args[0], args[len(args) - 1] = args[len(args) - 1], args[0]    // IDs should be located at args[0], if 1 or more arguments are given ID has to be moved to args[0]
+                } else {
+                    whisk.Debug(whisk.DbgError, "Conflict between Id and --last flag\n")
+                    errStr := wski18n.T("Can't use activation Id with --last flag.")
+                    whiskErr := whisk.MakeWskError(errors.New(errStr), whisk.EXITCODE_ERR_GENERAL, whisk.DISPLAY_MSG, whisk.DISPLAY_USAGE)
+                    return args, whiskErr
+                }
         }
     }
     return args, nil
+}
+//Checks format of Id not if Id actaully exist
+func isActivationId(id string) bool {
+    re := regexp.MustCompile("[a-z0-9]{32}")
+    validChars := re.FindAllString(id, -1)
+
+    if (len(validChars) == 1) {
+        whisk.Debug(whisk.DbgInfo, "Id cotains %d valid characters: %v\n", len(validChars[0]), validChars)
+        return true
+    }
+    whisk.Debug(whisk.DbgInfo, "%s returned false for valid ID\n", id)
+    return false
 }
 
 var activationPollCmd = &cobra.Command{

@@ -1516,6 +1516,10 @@
     "translation": "An entity name, '{{.name}}', was provided instead of a namespace. Valid namespaces are of the following format: /NAMESPACE."
   },
   {
+     "id": "Can't use activation Id with --last flag.",
+     "translation": "Can't use activation Id with --last flag."
+  },
+  {
     "id": "get action url",
     "translation": "get action url"
   }
